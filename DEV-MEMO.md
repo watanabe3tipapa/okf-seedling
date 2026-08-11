@@ -103,8 +103,8 @@ okf-seedling/                        ← quarto use template 対象 (ルート=Q
 
 ## デプロイ状況
 
-- GitHub Pages: https://watanabe3tipapa.github.io/okf-seedling/ 公開済み(`build_type: workflow`、push / workflow_dispatch で自動)
-- Cloudflare Pages: ユーザー側で設定中。**ビルドコマンドが `npx wrangler deploy`(Workers用)のままで静的ディレクトリを検出できないエラーが出ていた**。Pages プロジェクトのビルドコマンドを「Quarto を導入して render」に変更し、出力ディレクトリを `_site` にする必要がある
+- GitHub Pages: https://watanabe3tipapa.github.io/okf-seedling/ 公開済み
+- Cloudflare Pages: https://okf-seedling.pages.dev/ **公開済み**(2026-08-11、GH Actions 経由で `pages project create` + deploy / 31 files)。git 連携ビルドは停止済み
 - GitHub Actions の `deploy-cloudflare-pages.yml` はシェルベース(`npx wrangler@4.120.1` を直接実行)に変更。シークレット `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` 未設定時は `::notice::` を出してジョブ成功のままスキップする
 - ※ `if:` 内での `secrets` 参照は GitHub Actions の validation で弾かれる(ジョブ生成 0 件で "workflow file issue")ため使用しない
 - **決定: Cloudflare は git 連携ビルドを停止し、GitHub Actions(`deploy-cloudflare-pages.yml`)に一本化**。シークレット設定後に初回デプロイ(プロジェクトは自動 `pages project create`)
