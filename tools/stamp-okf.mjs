@@ -3,13 +3,16 @@
 // post-render: concepts/*.qmd (source of truth) -> okf/ OKF v0.2 bundle (.md).
 // Keeps the YAML frontmatter verbatim, preserving provenance/trust metadata for agents.
 
-import { readdir, readFile, writeFile, mkdir, rm, stat } from "node:fs/promises";
+import { readdir, readFile, writeFile, mkdir, rm, stat, readFileSync } from "node:fs/promises";
 import { resolve, join, basename, dirname } from "node:path";
 
 const ROOT = resolve(import.meta.dirname, "..");
 const SRC_DIR = join(ROOT, "concepts");
 const OUT_DIR = join(ROOT, "okf");
 const BUNDLE_ROOT = OUT_DIR;
+const OKF_VERSION = JSON.parse(
+  readFileSync(join(ROOT, "tools", "okf-version.json"), "utf8"),
+).current;
 
 function parseFrontmatter(src) {
   const m = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/.exec(src);
@@ -52,7 +55,7 @@ async function writeIndex(concepts) {
 
   const lines = [
     "---",
-    'okf_version: "0.2"',
+    `okf_version: "${OKF_VERSION}"`,
     "---",
     "",
     "# Open Knowledge Format bundle",

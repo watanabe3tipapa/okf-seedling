@@ -121,3 +121,23 @@ okf-seedling/                        ← quarto use template 対象 (ルート=Q
 
 - M4 の Cloudflare Pages は GitHub Actions 経由(`wrangler-action` + APIトークン)で統一。Cloudflare側のプロジェクト作成はユーザー側のダッシュボード操作が必要。
 - OKF v0.2 仕様は https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md に準拠。
+
+## M6: OKF バージョンアップ対応(validate ツール)
+
+- 目的: OKF 仕様の将来バージョン(0.3 以降)に CI が初日から壊れず、段階的に対応できるようにする
+- 構成(バージョンの単一 source of truth)
+  - `tools/okf-version.json` … `{ "current": "0.2", "supported": ["0.2"] }`
+  - `stamp-okf.mjs` → `index.md` の `okf_version:` をこの config から読む(ハードコード廃止)
+  - `validate-okf.mjs` → バンドル宣言の `okf_version` を照合して 3 分岐
+- 3 分岐の挙動
+
+  | バンドル宣言 | 挙動 |
+  |---|---|
+  | `supported` 内 | 厳密チェック → PASS / FAIL |
+  | current より新しい(未知) | 基本チェック + **警告のみで PASS**(CI 非破壊) |
+  | 古い / 未指定 | 警告 + current として扱う |
+
+- バージョン比較は semver 風に `major.minor` の数値比較(custom ヘルパー)
+- CLI: `node tools/validate-okf.mjs --versions` で current / supported / 各バージョンのルール概要を表示
+- 将来 OKF 0.3 対応手順 … ① `okf-version.json` に `"0.3"` 追加 + `current` 更新、② `validate-okf.mjs` の `RULES` マップに `"0.3"` ルール追加。宣言バンドルは自動で厳密チェックへ切替
+- 落とし穴対策: `okf_version` は stamp 生成値と config を常に同期(生成現場で直書きしない)
