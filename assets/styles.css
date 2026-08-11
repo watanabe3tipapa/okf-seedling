@@ -55,10 +55,16 @@ a {
 
 .navbar-brand {
   font-weight: 700;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  display: inline-block;
+  line-height: 1.1;
+  background: linear-gradient(135deg, #6ea2ff, #9d7bff);
   -webkit-background-clip: text;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
   color: transparent !important;
+  border-bottom: 2px solid;
+  border-image: linear-gradient(90deg, #6ea2ff, #9d7bff) 1;
+  padding-bottom: 2px;
 }
 
 .navbar .nav-link {
