@@ -19,9 +19,16 @@ jobs:
           version: "1.3.450"
       - name: Render site
         run: quarto render
+      - name: Create Pages project (if missing)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages project create okf-seedling --production-branch main || true
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy _site --project-name=okf-seedling
+          wranglerVersion: "4.120.1"
+          command: pages deploy _site --project-name=okf-seedling --commit-dirty=true
