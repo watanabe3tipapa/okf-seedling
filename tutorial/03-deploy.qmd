@@ -17,6 +17,11 @@ description: GitHub Pages / Cloudflare Pages への並行デプロイ
 
 ## Cloudflare Pages
 
-1. Cloudflare Dashboard でプロジェクトを作成(デプロイ先 `_site` を選択)
-2. リポジトリに `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` を設定
-3. `main` への push で `wrangler-action` が自動デプロイ
+GitHub Actions から `wrangler` で直接デプロイします(git 連携ビルドは使わない)。
+
+1. Cloudflare Dashboard で Pages プロジェクトを作成し、**git 連携ビルドを停止**(GitHub Actions との二重デプロイ防止)
+2. リポジトリにシークレットを設定
+   - `CLOUDFLARE_API_TOKEN` … **Pages:Edit** 権限を持つ API トークン
+   - `CLOUDFLARE_ACCOUNT_ID` … Account ID
+3. `main` への push で `deploy-cloudflare-pages.yml` が自動デプロイ(プロジェクト未作成時は自動作成)
+4. シークレット未設定時はジョブはスキップされる(失敗しない)
