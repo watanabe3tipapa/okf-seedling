@@ -4,4 +4,5 @@ _site/
 okf/
 pipeline/
 .github/
+DEV-MEMO.md
 .DS_Store
