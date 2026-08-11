@@ -1,0 +1,41 @@
+---
+title: "1. Create a Bundle"
+description: quarto use template で新しい OKF バンドルを作成する手順
+---
+
+# 新しいバンドルを作成する
+
+## 前提
+
+- [Quarto](https://quarto.org/docs/get-started/) (>= 1.3) がインストール済み
+- GitHub に公開済みのテンプレートリポジトリ
+
+## 手順
+
+```bash
+quarto use template <gh-org>/okf-seedling
+```
+
+空ディレクトリで実行すると、以下の成果物が生成されます。
+
+- `_quarto.yml`(サイト・OKF 設定)
+- `concepts/`(concept 型の雛形 .qmd)
+- `tutorial/`(このドキュメント群)
+- `tools/`(バンドル生成・検証スクリプト)
+
+## レンダリング
+
+```bash
+quarto render
+```
+
+- `_site/` … 人間用 HTML(LP・チュートリアル)
+- `okf/` … OKF v0.2 準拠バンドル(.md + frontmatter、機械読み取り用)
+
+## 検証
+
+```bash
+node tools/validate-okf.mjs
+```
+
+出力バンドルが OKF v0.2 準拠かチェックします。

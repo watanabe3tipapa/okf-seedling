@@ -1,0 +1,18 @@
+---
+type: Metric
+title: "Revenue"
+description: 特定会計年度の認識済み売上。
+resource: urn:metric:acme:revenue
+tags: [finance, revenue]
+status: stable
+generated: { by: human:okf-seedling, at: 2026-08-11T00:00:00Z }
+verified: { by: human:okf-seedling, at: 2026-08-11T00:00:00Z }
+stale_after: 2026-12-31
+---
+
+# Definition
+
+認識済み売上は会計年度に計上された `amount` の合計で、
+[revenue の計算定義](attested-computation.qmd) が正となる。
+
+関連計算は [Attested Computation](attested-computation.qmd) を参照。

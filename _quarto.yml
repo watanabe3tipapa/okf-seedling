@@ -1,0 +1,52 @@
+project:
+  type: website
+  output-dir: _site
+  render:
+    - "*.qmd"
+  post-render:
+    - node tools/stamp-okf.mjs
+
+website:
+  title: "okf-seedling"
+  site-url: "https://okf-seedling.pages.dev/"
+  repo-url: ""
+  description: "OKF v0.2 準拠の知識バンドルを作成する Quarto テンプレートツール"
+  navbar:
+    background: dark
+    left:
+      - href: index.qmd
+        text: Home
+      - text: Concepts
+        menu:
+          - href: concepts/api-overview.qmd
+            text: API Overview
+          - href: concepts/api-endpoint.qmd
+            text: API Endpoint
+          - href: concepts/api-schema.qmd
+            text: API Schema
+          - href: concepts/playbook.qmd
+            text: Playbook
+          - href: concepts/metric.qmd
+            text: Metric
+          - href: concepts/attested-computation.qmd
+            text: Attested Computation
+      - text: Tutorial
+        menu:
+          - href: tutorial/01-create-bundle.qmd
+            text: 1. Create Bundle
+          - href: tutorial/02-concept-type.qmd
+            text: 2. Concept Types
+          - href: tutorial/03-deploy.qmd
+            text: 3. Deploy
+
+format:
+  okf-html:
+    theme: cosmo
+    css: assets/styles.css
+    toc: true
+    toc-depth: 3
+    anchor-sections: true
+
+execute:
+  echo: false
+  warning: false

@@ -1,0 +1,38 @@
+{
+  "APIOverview": {
+    "description": "API全体の概要(認証・バージョン・エラーモデル等)",
+    "frontmatter": ["resource", "tags"],
+    "headings": ["Base URL", "Versioning", "Authentication", "Common Errors"],
+    "icon": "overview"
+  },
+  "APIEndpoint": {
+    "description": "1エンドポイントの仕様",
+    "frontmatter": ["resource", "tags", "method", "path"],
+    "headings": ["Summary", "Path Params", "Query Params", "Headers", "Responses", "Examples"],
+    "icon": "endpoint"
+  },
+  "APISchema": {
+    "description": "入出力の型・JSONスキーマ",
+    "frontmatter": ["resource", "tags"],
+    "headings": ["Fields", "JSON Example"],
+    "icon": "schema"
+  },
+  "Playbook": {
+    "description": "手順書・対処手順",
+    "frontmatter": ["tags"],
+    "headings": ["Trigger", "Steps"],
+    "icon": "playbook"
+  },
+  "Metric": {
+    "description": "指標の定義",
+    "frontmatter": ["tags", "resource"],
+    "headings": ["Definition"],
+    "icon": "metric"
+  },
+  "AttestedComputation": {
+    "description": "検証可能な計算定義(実行可能)",
+    "frontmatter": ["tags", "runtime", "parameters", "computation", "executor", "attester"],
+    "headings": ["Computation"],
+    "icon": "compute"
+  }
+}

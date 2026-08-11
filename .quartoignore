@@ -1,0 +1,7 @@
+# quarto use template でスキャフォールドする際に除外する項目
+node_modules/
+_site/
+okf/
+pipeline/
+.github/
+.DS_Store

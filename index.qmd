@@ -1,0 +1,51 @@
+---
+title: "okf-seedling"
+description: OKF v0.2 準拠の知識バンドルを作成する Quarto テンプレートツール
+---
+
+# okf-seedling
+
+Open Knowledge Format (OKF) v0.2 に準拠した **知識バンドル** を、Quarto だけで作って公開するテンプレートツールです。
+
+- エージェントにも人間にも読める `.qmd` をソースに
+- `quarto use template` 一発でバンドル雛形を生成
+- レンダリングで **人間用HTML** と **機械用OKFバンドル** を二系統出力
+- GitHub Pages / Cloudflare Pages に並行デプロイ
+
+::: {.grid}
+
+::: {.g-col-6 .g-col-md-4 .card}
+## Create
+`quarto use template <org>/okf-seedling` で新しい知識バンドルを生成。[詳細](tutorial/01-create-bundle.qmd)
+:::
+
+::: {.g-col-6 .g-col-md-4 .card}
+## Author
+6 種の concept 型(API / Playbook / Metric / Attested Computation)を type レジストリで拡張可能。[詳細](tutorial/02-concept-type.qmd)
+:::
+
+::: {.g-col-6 .g-col-md-4 .card}
+## Deploy
+GitHub Pages と Cloudflare Pages に並行デプロイ。frontmatter は HTML にも出力され、Playwright による知識蓄積にも対応。[詳細](tutorial/03-deploy.qmd)
+:::
+
+:::
+
+## Concept 型
+
+| Type | 説明 |
+|------|------|
+| [API Overview](concepts/api-overview.qmd) | API 全体の概要(認証・バージョン・エラー) |
+| [API Endpoint](concepts/api-endpoint.qmd) | 1 エンドポイントの仕様 |
+| [API Schema](concepts/api-schema.qmd) | 入出力の型・JSON スキーマ |
+| [Playbook](concepts/playbook.qmd) | 手順書・対処手順 |
+| [Metric](concepts/metric.qmd) | 指標の定義 |
+| [Attested Computation](concepts/attested-computation.qmd) | 検証可能な計算定義 |
+
+## Get Started
+
+```bash
+quarto use template <gh-org>/okf-seedling
+quarto render
+node tools/validate-okf.mjs
+```

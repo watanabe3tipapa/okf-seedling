@@ -1,0 +1,41 @@
+---
+title: "2. Concept Types"
+description: OKF の概念型(concept)の書き方
+---
+
+# Concept 型の書き方
+
+OKF は「1 概念 = 1 ファイル」です。各 `.qmd` の先頭に YAML frontmatter(`type` は必須)を置きます。
+
+共通フィールド:
+
+- `type`(必須): 概念の種別
+- `title` / `description`: 表示名 / 一言要約
+- `resource`: 対象リソースの URI
+- `tags`: タグ
+- `generated`: 生成者と日時 `{ by, at }`
+- `verified`: 検証イベント `by` / `at`
+- `status`: `draft` | `stable` | `deprecated`
+- `stale_after`: 鮮度切れ日
+- `sources`: 出所の一覧(`id` / `resource` / `title` / 信頼シグナル)
+
+## 型の拡張
+
+型は [tools/okf-types.json](../tools/okf-types.json) の type レジストリで管理しています。
+エントリを 1 つ追加すれば、frontmatter の検証・サイト描画・抽出規約が自動で追随します。
+
+```json
+{
+  "MyNewType": {
+    "description": "新しい概念型の説明",
+    "frontmatter": ["resource", "tags"],
+    "headings": ["Summary", "Examples"],
+    "icon": "note"
+  }
+}
+```
+
+## 見出し規約
+
+型ごとに固定した見出し(`tools/okf-types.json` の `headings`)を使うことで、
+Playwright による DOM 抽出(見出しベースのセクション走査)が安定します。
