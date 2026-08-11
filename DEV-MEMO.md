@@ -172,3 +172,55 @@ okf-seedling/                        ← quarto use template 対象 (ルート=Q
 - 「tutorial/04 + 任意導入 importer(`tools/import-apple-notes.mjs`)」として **手法紹介枠** で実装(コア機能にしない)
 - 抽出: AppleScript/JXA 主 + SQLite 副(auto でフォールバック)
 - 「実験的機能」と明記し、上記 4 点のガードをセットで実装
+
+### 結論(2026-08-11 更新)
+
+- **検討の結果、実装は回避する**(このアイデアを採用しない)
+- 理由: 秘密情報(API トークン等)がメモ内に実在し、バンドル/コミット経路で流出リスクが発生する点が致命的。型の相性・SQLite 本文抽出の脆さ・差分頻度の課題を考慮しても、ガードを十分に設けるコストと期待価値が見合わない
+- 今後この方向を再検討する場合は: 抽出対象を「専用フォルダのみ」に限定し、機密スキャン(`--skip`/検出)を必須とする前提で、実装前に改めて本件の再評価を行うこと
+
+## M9: Notion バンドル手法(検討メモ)
+
+- 検証した事実(本機)
+  - ローカルキャッシュ: `~/Library/Application Support/Notion/notion.db`(**336MB の SQLite が実在**、読取可能)
+  - Notion はオフィシャルブログで SQLite キャッシュの存在を明言(best-effort な record cache)。notion-mcp-fast 等が 2 万ページを 3 秒で読む実績
+  - 公式 **Notion API**(blocks 形式)は安定だが、Integration トークン(秘密)・ネットワーク・レート制限(約 3 req/s)・Markdown 変換が必要
+- 抽出経路の比較
+
+  | 経路 | 速度 | 完全性 | 秘密 | 備考 |
+  |---|---|---|---|---|
+  | ローカル `notion.db` | 高速 | **キャッシュで不確実**(未ドキュメントスキーマ) | 不要 | アプリ版の LRU キャッシュに依存、版間で壊れやすい |
+  | Notion API | 低速(制限あり) | 正(クラウドが正) | **必要** | blocks → Markdown 変換必須 |
+  | UI エクスポート | 手動 | 正 | 不要 | スケールしない |
+
+- 気になる点
+  1. **秘密情報**: Notion ページもトークン等を含み得る。バンドル/コミット経路で流出リスク(M8 と同型)
+  2. **キャッシュの不確実性**: `notion.db` はあくまでキャッシュであり、実体はクラウド。完全性の保証なし + スキーマ非公開 → 壊れやすい。「ローカルが正」の Apple Notes と性質が異なる
+  3. **型の相性**: OKF 6 型に当てはまらないページ多数
+  4. **API 経路はシークレット管理**が追加で必要
+  5. 差分頻度(M8 と同型)
+- 結論: **実装は回避/保留が妥当**。抽出自体は可能(notion.db 実在確認)だが、キャッシュの脆さ + 秘密情報リスク + 型の相性が Apple Notes より悪く、価値対リスクが見合わない
+
+## M10: Obsidian バンドル手法(検討メモ)
+
+- 検証した事実(本機)
+  - ボルトは **プレーン Markdown のファイル群**がそのまま source of truth(クラウド同期は iCloud Drive)
+  - iCloud ボルト `/Documents` に **13,472 の .md** 実在。しかもボルト内に「Apple Notes」フォルダがあり、**Apple メモの Obsidian 同期が既に存在する**可能性が高い
+  - 形式: Markdown + YAML frontmatter(Properties)/ wikilink `[[...]]` / embed `![[...]]` / callout / tag
+- 抽出経路: ほぼ自明。`.md` をコピー → wikilink/embed/callout を標準 Markdown へ変換 → OKF frontmatter(`type` 等)を付与 → バンドルへ stamp。秘密・API・ネットワーク不要
+- 気になる点(リスクは 3 ツール中最小)
+  1. **Obsidian 固有構文の変換**: `[[wikilink]]`→標準リンク、`![[embed]]` 解決、`[!NOTE]` callout→標準化(移植性)
+  2. **frontmatter 規格化**: 既存ノートに OKF `type` がない → フォルダ→型の対応付け or 明示指定で付与する設計が必要
+  3. **秘密情報**: ボルトにも含み得るため警告は同様(M8 のガードを流用)
+  4. **規模/差分**: 1.3 万超の .md。全量 import は hash 更新ノイズ大 → フォルダ/glob で対象を絞る運用が前提
+- 結論: **3 ツール中で最も実現性が高い**(Markdown + YAML = 実質 OKF の形)。「手法紹介」の枠で扱うなら Obsidian が最有力候補。実装是非は指示待ち
+
+## M8-M10 比較まとめ(Apple Notes / Notion / Obsidian)
+
+| 項目 | Apple Notes | Notion | Obsidian |
+|---|---|---|---|
+| データの正体 | SQLite(暗号化・FD 制限) | クラウド + ローカル cache | **ローカル .md が正** |
+| 抽出経路 | AppleScript(可) / SQLite(不可) | notion.db / API | ファイル読取 |
+| 実現性 | 中 | 中(だが脆い) | **高** |
+| 主なリスク | 秘密情報 / ZBODY 難 | キャッシュ脆さ / 秘密 / API秘密 | wikilink変換 / 型付与 |
+| 判断 | 回避 | 回避/保留 | **最有力(要指示)** |
