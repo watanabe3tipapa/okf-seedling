@@ -2,6 +2,10 @@
 
 A Quarto template tool for authoring, rendering, validating, and publishing **OKF v0.2-compliant knowledge bundles** that are readable by both agents and humans.
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-live-blue.svg)](https://watanabe3tipapa.github.io/okf-seedling/)
+[![GitHub](https://img.shields.io/github/issues/watanabe3tipapa/okf-seedling.svg)](https://github.com/watanabe3tipapa/okf-seedling/issues)
+
 [English](README.md) | [日本語](README_ja.md)
 
 ## Features
@@ -65,3 +69,7 @@ Contributions are welcome! Please open an [issue](https://github.com/watanabe3ti
 GitHub: [https://github.com/watanabe3tipapa/okf-seedling](https://github.com/watanabe3tipapa/okf-seedling)
 
 Live site: [https://watanabe3tipapa.github.io/okf-seedling/](https://watanabe3tipapa.github.io/okf-seedling/)
+
+## License
+
+MIT License — see the [LICENSE](LICENSE) file for details.

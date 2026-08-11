@@ -2,6 +2,10 @@
 
 **OKF v0.2 準拠の知識バンドル**を、エージェントにも人間にも読める形で執筆・レンダリング・検証・公開する Quarto テンプレートツールです。
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-live-blue.svg)](https://watanabe3tipapa.github.io/okf-seedling/)
+[![GitHub](https://img.shields.io/github/issues/watanabe3tipapa/okf-seedling.svg)](https://github.com/watanabe3tipapa/okf-seedling/issues)
+
 [English](README.md) | [日本語](README_ja.md)
 
 ## 特徴
@@ -66,3 +70,7 @@ cd pipeline && npm install && npm run learn
 GitHub: [https://github.com/watanabe3tipapa/okf-seedling](https://github.com/watanabe3tipapa/okf-seedling)
 
 公開サイト: [https://watanabe3tipapa.github.io/okf-seedling/](https://watanabe3tipapa.github.io/okf-seedling/)
+
+## ライセンス
+
+MITライセンス — 詳細は [LICENSE](LICENSE) ファイルを参照してください。
