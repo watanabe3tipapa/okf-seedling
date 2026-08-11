@@ -149,3 +149,26 @@ okf-seedling/                        ← quarto use template 対象 (ルート=Q
 - パレット: bg `#0f1117` / panel `#1c202b` / border `#2a2f3d` / text `#e8eaf0` / dim `#9aa2b5` / accent `#4f8cff` / accent2 `#8b5cf6`
 - navbar-brand はグラデーションテキスト、カードは panel 背景 + 角丸 12px、テーブルは border 色 + セル本文色を明色に
 - 注意: テーブルは Bootstrap のセル実色が cosmo の濃色に勝つため `.table th/td` は `!important` で上書き
+
+## M8: Apple Notes バンドル手法(検討メモ・特記事項)
+
+- アイデア: 自分のデバイス/アカウントの Apple「メモ」(SQLite)を OKF バンドルに取り込む手法の紹介を追加
+- 調査で確認した事実
+  - `~/Library/Group Containers/group.com.apple.notes/` は **Full Disk Access 未付与だと読めない**(Operation not permitted)
+  - **AppleScript / JXA 経由なら許可なしで全ノートにアクセス可能**(本機では 8,255 ノート・name/body/日付/フォルダ/id 取得可。body は HTML タグ混じり)
+  - `node:sqlite`(Node 22+)が利用可能 → SQLite 直読みに外部依存不要
+  - 本文は新世代では `ZICNOTEDATA.ZBODY`(NSKeyedArchiver バイナリ)等で、**素直なテキスト抽出は困難**
+
+### 気になる点(重要度順) — 実装時の必須ガード
+
+1. **プライバシー/秘密情報の流出**: 検証中に先頭ノートから Cloudflare API トークンが出現。メモをバンドル→コミットすると機密が git に載る。
+   対策: 専用フォルダ運用 / `--skip-folders` / コミット対象になる旨の警告表示 / 機密を想定した UI ガード。
+2. **型の相性**: OKF の 6 型(API/Playbook/Metric/…)は汎用メモに不向き。`type: Playbook` 強制は無理筋 → **型は明示指定**(デフォルト `Playbook`、`--type` で変更可)にとどめ、無理に当てはめない。
+3. **SQLite の本文抽出は脆い**: `ZBODY` はバイナリのため抽出はヒューリスティック。**信頼できる抽出は AppleScript/JXA 経路**。SQLite 直読みは「高速だが best-effort」の副経路と明記。
+4. **差分の頻度**: メモは頻繁に変わる → バンドル hash が毎回更新され、Playwright 知識パイプラインの差分(updated)ノイズになりがち。
+
+### 方針(仮)
+
+- 「tutorial/04 + 任意導入 importer(`tools/import-apple-notes.mjs`)」として **手法紹介枠** で実装(コア機能にしない)
+- 抽出: AppleScript/JXA 主 + SQLite 副(auto でフォールバック)
+- 「実験的機能」と明記し、上記 4 点のガードをセットで実装
