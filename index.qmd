@@ -12,6 +12,16 @@ Open Knowledge Format (OKF) v0.2 に準拠した **知識バンドル** を、Qu
 - レンダリングで **人間用HTML** と **機械用OKFバンドル** を二系統出力
 - GitHub Pages / Cloudflare Pages に並行デプロイ
 
+## OKF バンドルとは
+
+エージェントにも人間にも読める形で、ドキュメント群をひとまとめにした知識パッケージです。
+`okf/` ディレクトリ(index.md / log.md / concepts/*.md)に機械可読な Markdown として自動生成され、
+人間向けの HTML と **同じ source(.qmd)** から同時に出力されます。
+
+- **concept 単位で構造化** … API / Playbook / Metric / Attested Computation を 1 ファイル 1 概念で記述
+- **frontmatter が辞書** … type・対象・作成日などのメタ情報を機械が解釈
+- **sha 差分追跡** … バンドル全体の更新差分を機械が検知できる
+
 ::: {.grid}
 
 ::: {.g-col-6 .g-col-md-4 .card}
