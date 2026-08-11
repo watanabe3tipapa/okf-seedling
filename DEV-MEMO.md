@@ -105,7 +105,9 @@ okf-seedling/                        ← quarto use template 対象 (ルート=Q
 
 - GitHub Pages: https://watanabe3tipapa.github.io/okf-seedling/ 公開済み(`build_type: workflow`、push / workflow_dispatch で自動)
 - Cloudflare Pages: ユーザー側で設定中。**ビルドコマンドが `npx wrangler deploy`(Workers用)のままで静的ディレクトリを検出できないエラーが出ていた**。Pages プロジェクトのビルドコマンドを「Quarto を導入して render」に変更し、出力ディレクトリを `_site` にする必要がある
-- GitHub Actions の `deploy-cloudflare-pages.yml`(wrangler-action 経由)はシークレット `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` 未設定のためまだ動かない(パスは GH Pages 側のみ選択)
+- GitHub Actions の `deploy-cloudflare-pages.yml` はシェルベース(`npx wrangler@4.120.1` を直接実行)に変更。シークレット `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` 未設定時は `::notice::` を出してジョブ成功のままスキップする
+- ※ `if:` 内での `secrets` 参照は GitHub Actions の validation で弾かれる(ジョブ生成 0 件で "workflow file issue")ため使用しない
+- Cloudflare の git 連携ビルド(Workers Builds: okf-seedling)はビルドコマンド不備で失敗中 → ダッシュボードで git 連携のビルドを停止し、デプロイは GitHub Actions に一本化する
 
 ## M5: Playwright 学習パイプライン
 
