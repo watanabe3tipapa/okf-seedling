@@ -3,7 +3,7 @@
 // post-render: concepts/*.qmd (source of truth) -> okf/ OKF v0.2 bundle (.md).
 // Keeps the YAML frontmatter verbatim, preserving provenance/trust metadata for agents.
 
-import { readdir, readFile, writeFile, mkdir, rm, stat } from "node:fs/promises";
+import { readdir, readFile, writeFile, mkdir, rm } from "node:fs/promises";
 import { readFileSync } from "node:fs";
 import { resolve, join, basename, dirname } from "node:path";
 
@@ -41,6 +41,15 @@ function mdPath(qmdPath) {
   return join(BUNDLE_ROOT, "concepts", rel);
 }
 
+// Rewrite relative ``.qmd`` links to ``.md`` so the standalone bundle's
+// internal references resolve (see PLAN2.md 2-E). External/absolute/anchored
+// links and footnotes are left untouched.
+function rewriteLinks(src) {
+  return src.replace(/(\]\()([^()\s)]+?\.qmd)(?:[#?][^)]*)?(\))/g, (m, pre, target, post) => {
+    return pre + target.replace(/\.qmd$/, ".md") + post;
+  });
+}
+
 async function writeIndex(concepts) {
   const byDir = new Map();
   for (const { yaml, path } of concepts) {
@@ -74,24 +83,40 @@ async function writeIndex(concepts) {
   await writeFile(join(BUNDLE_ROOT, "index.md"), lines.join("\n"));
 }
 
-async function writeLog() {
+async function writeLog(conceptCount) {
   const logPath = join(BUNDLE_ROOT, "log.md");
+  const today = new Date().toISOString().slice(0, 10);
+  let existing = "";
   try {
-    await stat(logPath);
-    return;
+    existing = await readFile(logPath, "utf8");
   } catch {
-    const today = new Date().toISOString().slice(0, 10);
+    // will create below
+  }
+  if (existing.trim() === "") {
     await writeFile(
       logPath,
       [
         "# Directory Update Log",
         "",
         `## ${today}`,
-        "* **Initialization**: Created foundational directory structure.",
+        `* **Update**: Initialized bundle with ${conceptCount} concept(s).`,
         "",
       ].join("\n"),
     );
+    return;
   }
+  // Append a dated entry once per day (kept append-only, avoids per-render spam).
+  if (existing.includes(`## ${today}`)) {
+    return;
+  }
+  const update = [
+    "",
+    `## ${today}`,
+    `* **Update**: Rebuilt bundle with ${conceptCount} concept(s).`,
+    "",
+    "",
+  ].join("\n");
+  await writeFile(logPath, existing.replace(/\s+$/, "") + "\n" + update.trimStart());
 }
 
 async function main() {
@@ -111,14 +136,14 @@ async function main() {
     const out = mdPath(src);
     await mkdir(dirname(out), { recursive: true });
     const outContent = body.trim()
-      ? `${content.replace(/\s+$/m, "")}\n`
+      ? `${rewriteLinks(content).replace(/\s+$/m, "")}\n`
       : content;
     await writeFile(out, outContent);
     concepts.push({ yaml, path: out });
     console.log(`stamp-okf: wrote ${out.replace(ROOT + "/", "")}`);
   }
   await writeIndex(concepts);
-  await writeLog();
+  await writeLog(concepts.length);
   console.log(`stamp-okf: bundle ready at okf/ (${concepts.length} concepts)`);
 }
 

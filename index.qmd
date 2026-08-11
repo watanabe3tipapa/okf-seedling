@@ -55,7 +55,7 @@ GitHub Pages と Cloudflare Pages に並行デプロイ。frontmatter は HTML �
 ## Get Started
 
 ```bash
-quarto use template <gh-org>/okf-seedling
+quarto use template <your-github-org>/okf-seedling
 quarto render
 node tools/validate-okf.mjs
 ```

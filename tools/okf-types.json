@@ -1,4 +1,12 @@
 {
+  "shared": [
+    "type",
+    "status",
+    "generated",
+    "verified",
+    "stale_after"
+  ],
+  "optional": ["title", "description", "resource", "tags", "sources"],
   "APIOverview": {
     "description": "API全体の概要(認証・バージョン・エラーモデル等)",
     "frontmatter": ["resource", "tags"],
@@ -31,7 +39,7 @@
   },
   "AttestedComputation": {
     "description": "検証可能な計算定義(実行可能)",
-    "frontmatter": ["tags", "runtime", "parameters", "computation", "executor", "attester"],
+    "frontmatter": ["tags", "runtime", "parameters", "executor", "attester"],
     "headings": ["Computation"],
     "icon": "compute"
   }

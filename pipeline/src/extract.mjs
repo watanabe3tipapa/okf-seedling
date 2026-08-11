@@ -10,10 +10,11 @@
 
 const CONTAINER_SELECTOR = "#quarto-document-content";
 const META_SELECTOR = ".concept-meta";
+const META_JSON_SELECTOR = ".concept-meta-json";
 
 // ページ全体から知識を抽出する関数(ブラウザコンテキスト内で実行される)
 // 注意: evaluate はこの関数と引数のみをシリアライズするため、全て内部で完結させる。
-export const extractFn = ({ containerSelector, metaSelector } = {}) => {
+export const extractFn = ({ containerSelector, metaSelector, metaJsonSelector } = {}) => {
   const text = (el) => (el.textContent || "").replace(/\s+/g, " ").trim();
 
   const blockText = (node) => {
@@ -42,16 +43,30 @@ export const extractFn = ({ containerSelector, metaSelector } = {}) => {
   const main = document.querySelector(containerSelector ?? CONTAINER_SELECTOR);
   if (!main) return null;
 
-  const meta = {};
   const metaEl = main.querySelector(metaSelector ?? META_SELECTOR);
-  if (metaEl) {
+
+  // Prefer the structured JSON block (order/nesting/typing preserved); fall back
+  // to the flattened dl for older rendered pages.
+  let meta = null;
+  const jsonEl = metaEl ? metaEl.querySelector(metaJsonSelector ?? META_JSON_SELECTOR) : null;
+  if (jsonEl) {
+    try {
+      const parsed = JSON.parse(jsonEl.textContent);
+      if (parsed && typeof parsed === "object") meta = parsed;
+    } catch {
+      meta = null;
+    }
+  }
+  if (!meta && metaEl) {
+    meta = {};
     const items = metaEl.querySelectorAll("dt, dd");
     for (let i = 0; i < items.length; i += 2) {
-      const key = items[i].textContent.trim();
-      const value = items[i + 1] ? items[i + 1].textContent.trim() : "";
+      const key = (items[i].textContent || "").trim();
+      const value = items[i + 1] ? (items[i + 1].textContent || "").trim() : "";
       if (key) meta[key] = value;
     }
   }
+  if (!meta) return null;
 
   // Quarto は見出しと本文を <section class="levelN"> でラップする。
   // 見出し(h1/h3)を文書順に列挙し、各見出しの直後から兄弟ノードを辿って
@@ -95,5 +110,6 @@ export async function extractFromPage(page, { path, url } = {}) {
   return page.evaluate(extractFn, {
     containerSelector: CONTAINER_SELECTOR,
     metaSelector: META_SELECTOR,
+    metaJsonSelector: META_JSON_SELECTOR,
   });
 }

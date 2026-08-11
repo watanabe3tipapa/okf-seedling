@@ -36,7 +36,7 @@ sources:
 | 429 | Too Many Requests(レート制限) |
 | 500 | Internal Server Error |
 
-共通スキーマは [API Overview の各エンドポイント](api-endpoint.qmd) と共有する。[^swagger]
+共通スキーマは [API Overview の各エンドポイント](api-endpoint.md) と共有する。[^swagger]
 
 [^swagger]: OpenAPI 定義
 

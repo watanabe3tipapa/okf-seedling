@@ -13,7 +13,7 @@ description: quarto use template で新しい OKF バンドルを作成する手
 ## 手順
 
 ```bash
-quarto use template <gh-org>/okf-seedling
+quarto use template <your-github-org>/okf-seedling
 ```
 
 空ディレクトリで実行すると、以下の成果物が生成されます。
@@ -21,7 +21,8 @@ quarto use template <gh-org>/okf-seedling
 - `_quarto.yml`(サイト・OKF 設定)
 - `concepts/`(concept 型の雛形 .qmd)
 - `tutorial/`(このドキュメント群)
-- `tools/`(バンドル生成・検証スクリプト)
+- `tools/`(バンドル生成・検証・スキーマ生成スクリプト)
+- `_extensions/okf/`(frontmatter → HTML 表示の Quarto 拡張)
 
 ## レンダリング
 
@@ -38,4 +39,5 @@ quarto render
 node tools/validate-okf.mjs
 ```
 
-出力バンドルが OKF v0.2 準拠かチェックします。
+出力バンドルが OKF v0.2 に準拠しているか、type レジストリ(`tools/okf-types.json`)駆動で
+必須 frontmatter・provenance・内部リンクの解決可能性をチェックします。

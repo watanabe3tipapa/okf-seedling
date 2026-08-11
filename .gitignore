@@ -5,3 +5,7 @@ node_modules/
 *.RData
 
 /.quarto/
+# 学習成果物(ビルド毎に変化)はコミットしない
+pipeline/knowledge/
+
+**/*.quarto_ipynb

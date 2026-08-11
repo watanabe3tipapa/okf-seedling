@@ -9,7 +9,7 @@ project:
 website:
   title: "okf-seedling"
   site-url: "https://okf-seedling.pages.dev/"
-  repo-url: ""
+  repo-url: "https://github.com/watanabe3tipapa/okf-seedling"
   description: "OKF v0.2 準拠の知識バンドルを作成する Quarto テンプレートツール"
   navbar:
     background: dark
@@ -40,13 +40,14 @@ website:
             text: 3. Deploy
 
 format:
-  okf-html:
+  html:
     theme: cosmo
     css: assets/styles.css
     toc: true
     toc-depth: 3
     anchor-sections: true
+    filters:
+      - _extensions/okf/okf-meta.lua
 
 execute:
   echo: false
-  warning: false

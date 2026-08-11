@@ -30,7 +30,7 @@ stale_after: 2026-12-31
 # Responses
 
 - 200: OK
-  - schema: [UserResponse](api-schema.qmd)
+  - schema: [UserResponse](api-schema.md)
 - 404: Not Found
 - 429: Too Many Requests
 

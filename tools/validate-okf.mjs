@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // validate-okf.mjs
-// Version-aware OKF conformance check for the okf/ bundle.
+// Version-aware OKF conformance check for the okf/ bundle, driven by the type
+// registry (tools/okf-types.json) and the version config (tools/okf-version.json).
 //
 // Reads the bundle's declared `okf_version` (okf/index.md) and compares it with
 // tools/okf-version.json (single source of truth):
@@ -10,28 +11,40 @@
 //                                       never break CI on day one
 //   - declared OLDER / missing       -> warning + treated as `current`
 //
+// Per concept it enforces:
+//   * YAML frontmatter present, `type` present and registered
+//   * type-specific required frontmatter (shared + per-type from the registry)
+//   * required provenance/headings conventions (warnings where stylistically soft)
+//   * internal markdown links resolve inside the bundle (or are declared external)
+//
 // Upgrading to a new OKF version:
 //   1. add the version to tools/okf-version.json (`supported` and bump `current`)
 //   2. add a ruleset under RULES for that version (defaults apply otherwise)
 
 import { readdir, readFile, mkdir } from "node:fs/promises";
-import { resolve, join, relative, basename } from "node:path";
+import { resolve, join, relative, basename, dirname, extname, sep } from "node:path";
 
 const ROOT = resolve(import.meta.dirname, "..");
 const BUNDLE_ROOT = resolve(ROOT, process.argv.slice(2).find((a) => !a.startsWith("-")) ?? "okf");
 const CFG_PATH = join(ROOT, "tools", "okf-version.json");
+const TYPES_PATH = join(ROOT, "tools", "okf-types.json");
 const SHOW_VERSIONS = process.argv.includes("--versions");
 
 const okfVersion = JSON.parse(await readFile(CFG_PATH, "utf8"));
 const CURRENT = String(okfVersion.current);
 const SUPPORTED = okfVersion.supported.map(String);
 
+const typeRegistry = JSON.parse(await readFile(TYPES_PATH, "utf8"));
+const SHARED_FIELDS = typeRegistry.shared ?? [];
+const TYPE_NAMES = Object.keys(typeRegistry).filter((k) => k !== "shared" && k !== "optional");
+
 // Version-specific rules. Add a "0.3": { ... } entry when the next OKF lands.
 const RULES = {
   "0.2": {
     reserved: ["index.md", "log.md"],
     requireType: true,
-    note: "v0.2: non-reserved .md は frontmatter + 非空 type が必須",
+    checkHeadings: true,
+    note: "v0.2: レジストリ駆動で frontmatter(必須 + type固有)・provenance・内部リンクを検証",
   },
 };
 
@@ -48,25 +61,76 @@ function cmpVersion(a, b) {
 function printVersions() {
   console.log(`current:   ${CURRENT}`);
   console.log(`supported: ${SUPPORTED.join(", ")}`);
+  console.log(`types:     ${TYPE_NAMES.join(", ")}`);
   console.log("");
   for (const v of SUPPORTED) {
     console.log(`v${v}: ${RULES[v]?.note ?? "(バージョン固有ルールなし)"}`);
   }
-  console.log("");
-  console.log(
-    "upgrade flow: 1) okf-version.json に version 追加 + current 更新 " +
-      "2) validate-okf.mjs の RULES にルールセット追加",
-  );
 }
 
-function hasFrontmatterBlock(src) {
-  return /^---\r?\n[\s\S]*?\r?\n---\r?\n?/.test(src);
+// ---------- frontmatter helpers ----------
+
+function splitFrontmatter(src) {
+  const m = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/.exec(src);
+  if (!m) return { yaml: "", body: src };
+  return { yaml: m[1], body: m[2] };
 }
 
-function extractType(src) {
-  const m = /^---\r?\n[\s\S]*?^type:\s*["']?([^"' \n]+)[\s\S]*?\r?\n---\r?\n?/m.exec(src);
-  return m ? m[1] : null;
+// Returns top-level keys present in the YAML block (line-based; values ignored).
+function topLevelKeys(yaml) {
+  const keys = [];
+  for (const line of yaml.split(/\r?\n/)) {
+    const k = /^([A-Za-z_][A-Za-z0-9_]*):\s*/.exec(line);
+    if (k) keys.push(k[1]);
+  }
+  return new Set(keys);
 }
+
+function extractType(yaml) {
+  for (const line of yaml.split(/\r?\n/)) {
+    const m = /^type:\s*["']?([^"' \n]+)/.exec(line);
+    if (m) return m[1].replace(/["']/g, "").trim();
+  }
+  return null;
+}
+
+function nonEmptyValue(yaml, key) {
+  // find the first line for key and confirm it isn't an empty value
+  const lines = yaml.split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) {
+    const m = /^([A-Za-z_][A-Za-z0-9_]*):\s*(.*)$/.exec(lines[i]);
+    if (m && m[1] === key) {
+      // If the value is empty, the next line may still be a nested list/map.
+      if (m[2].trim() !== "") return true;
+      // allow nested block continuation
+      const next = lines[i + 1];
+      return next !== undefined && /^\s+[-&]?/.test(next) && /^\s/.test(next);
+    }
+  }
+  return false;
+}
+
+// ---------- link resolution ----------
+
+function collectLinks(src) {
+  const links = [];
+  const re = /!?\[[^\]]*\]\(([^)\s]+)(?:\s+[^)]*)?\)/g;
+  let m;
+  while ((m = re.exec(src)) !== null) {
+    let target = m[1];
+    target = target.split("#")[0];
+    target = target.split("?")[0];
+    if (!target) continue;
+    links.push(target);
+  }
+  return links;
+}
+
+function isExternal(target) {
+  return /^(https?:)?\/\//.test(target) || /^(mailto:|tel:|#|\/)/.test(target);
+}
+
+// ---------- traversal ----------
 
 async function walk(dir, acc = []) {
   const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
@@ -78,15 +142,15 @@ async function walk(dir, acc = []) {
   return acc;
 }
 
-async function readDeclaredVersion() {
-  try {
-    const src = await readFile(join(BUNDLE_ROOT, "index.md"), "utf8");
-    const m = /^---\r?\n[\s\S]*?^okf_version:\s*["']?([^"'\r\n]+)/m.exec(src);
-    return m ? m[1].trim() : null;
-  } catch {
-    return null;
+async function readDeclaredVersion(yaml) {
+  for (const line of yaml.split(/\r?\n/)) {
+    const m = /^okf_version:\s*["']?([^"'\r\n]+)/.exec(line);
+    if (m) return m[1].replace(/["']/g, "").trim();
   }
+  return null;
 }
+
+// ---------- main ----------
 
 async function main() {
   if (SHOW_VERSIONS) {
@@ -96,7 +160,8 @@ async function main() {
 
   await mkdir(BUNDLE_ROOT, { recursive: true });
   const files = await walk(BUNDLE_ROOT);
-  const declared = await readDeclaredVersion();
+  const indexSrc = await readFile(join(BUNDLE_ROOT, "index.md"), "utf8").catch(() => null);
+  const declared = indexSrc ? await readDeclaredVersion(splitFrontmatter(indexSrc).yaml) : null;
 
   const warnings = [];
   let ruleVersion = null;
@@ -124,12 +189,16 @@ async function main() {
   const rules = ruleVersion ? RULES[ruleVersion] ?? {} : {};
   const reserved = new Set(rules.reserved ?? ["index.md", "log.md"]);
   const requireType = rules.requireType ?? true;
+  const checkHeadings = rules.checkHeadings ?? true;
 
   const errors = [];
+  const allFiles = new Set(files.map((f) => f));
+
   for (const file of files) {
     const rel = relative(BUNDLE_ROOT, file);
     const name = basename(file);
     const src = await readFile(file, "utf8");
+    const { yaml, body } = splitFrontmatter(src);
 
     if (reserved.has(name)) {
       if (name === "log.md" && !/^#\s/.test(src.trim())) {
@@ -138,13 +207,70 @@ async function main() {
       continue;
     }
 
-    if (!hasFrontmatterBlock(src)) {
+    if (!yaml) {
       errors.push(`${rel}: YAML frontmatter ブロックがありません`);
       continue;
     }
+
+    // -- type required + registered --
     if (requireType) {
-      const type = extractType(src);
-      if (!type) errors.push(`${rel}: 必須フィールド type がありません`);
+      const type = extractType(yaml);
+      if (!type) {
+        errors.push(`${rel}: 必須フィールド type がありません`);
+        continue;
+      }
+      if (!TYPE_NAMES.includes(type)) {
+        warnings.push(`${rel}: type="${type}" はレジストリ(tools/okf-types.json)に未登録です(基本チェックのみ)`);
+      }
+    }
+
+    // -- required frontmatter (shared + per-type) --
+    const keys = topLevelKeys(yaml);
+    const type = extractType(yaml);
+    const requiredFields = type && TYPE_NAMES.includes(type) ? [...SHARED_FIELDS, ...(typeRegistry[type]?.frontmatter ?? [])] : [...SHARED_FIELDS];
+    for (const f of new Set(requiredFields)) {
+      if (!keys.has(f) || !nonEmptyValue(yaml, f)) {
+        errors.push(`${rel}: 必須フィールド ${f} がありません(または空)`);
+      }
+    }
+
+    // -- provenance shape (soft) --
+    for (const p of ["generated", "verified"]) {
+      if (keys.has(p)) {
+        const v = valueBlock(yaml, p);
+        if (!/by:|at:/.test(v)) {
+          warnings.push(`${rel}: ${p} は { by, at } 形式を推奨します`);
+        }
+      }
+    }
+
+    // -- required headings (convention) --
+    if (checkHeadings && type && TYPE_NAMES.includes(type)) {
+      const thr = typeRegistry[type]?.headings ?? [];
+      const lowerBody = body.replace(/```[\s\S]*?```/g, "");
+      for (const h of thr) {
+        const re = new RegExp(`^#{1,6}\\s+${escapeRe(h)}`, "m");
+        if (!re.test(lowerBody)) {
+          warnings.push(`${rel}: 見出し "# ${h}" がありません(推奨見出し規約)`);
+        }
+      }
+    }
+
+    // -- internal link resolution --
+    for (const target of collectLinks(src)) {
+      if (isExternal(target)) continue;
+      if (target.startsWith("references/")) {
+        warnings.push(`${rel}: 内部参照 ${target} はバンドル外(references/)を指します`);
+        continue;
+      }
+      if (extname(target) === ".qmd") {
+        errors.push(`${rel}: リンク ${target} は .qmd のままです。stamp-okf で .md に変換してください`);
+        continue;
+      }
+      const resolved = resolve(dirname(file), target);
+      if (!allFiles.has(resolved)) {
+        errors.push(`${rel}: 内部リンク ${target} がバンドル内に解決できません`);
+      }
     }
   }
 
@@ -158,8 +284,27 @@ async function main() {
   }
   console.log(`${label} validation PASSED (${files.length} files in ${relative(ROOT, BUNDLE_ROOT)})`);
   if (warnings.length > 0) {
-    console.log(`note: ${warnings.length} 件の警告(basic/migration) — 上記 WARN を確認してください`);
+    console.log(`note: ${warnings.length} 件の警告 — 上記 WARN を確認してください`);
   }
+}
+
+// helpers for provenance value extraction (soft check)
+function valueBlock(yaml, key) {
+  const lines = yaml.split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) {
+    if (/^([A-Za-z_][A-Za-z0-9_]*):\s*/.test(lines[i]) && lines[i].startsWith(key + ":")) {
+      let buf = lines[i];
+      for (let j = i + 1; j < lines.length; j++) {
+        if (/^\s+/.test(lines[j])) buf += "\n" + lines[j];
+        else break;
+      }
+      return buf;
+    }
+  }
+  return "";
+}
+function escapeRe(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 main().catch((err) => {

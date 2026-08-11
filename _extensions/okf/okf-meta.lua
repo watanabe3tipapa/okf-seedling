@@ -2,85 +2,163 @@
 -- Quarto / pandoc filter:
 -- Renders the OKF frontmatter as a metadata block at the top of each concept page,
 -- so the metadata (type, status, verified, sources, ...) is visible to humans
--- and machine-extractable by Playwright (stable DOM selector: .concept-meta).
+-- and machine-extractable. The schema table below is GENERATED from
+-- tools/okf-types.json by tools/gen-schema.mjs (the single type registry).
 
-local META_FIELDS = {
-  "type",
-  "status",
-  "title",
-  "description",
-  "resource",
-  "tags",
-  "generated",
-  "verified",
-  "stale_after",
-  "runtime",
-  "method",
-  "path",
-  "parameters",
-  "executor",
-  "attester",
-  "sources",
+-- @@OKF_SCHEMA_BEGIN@@
+local schema = {
+  meta_fields = { "type", "status", "generated", "verified", "stale_after", "resource", "tags", "method", "path", "runtime", "parameters", "executor", "attester" },
+  optional = { "title", "description", "resource", "tags", "sources" },
+  by_type = {
+    ["APIOverview"] = {
+      fields = { "type", "status", "generated", "verified", "stale_after", "resource", "tags" },
+      headings = { "Base URL", "Versioning", "Authentication", "Common Errors" },
+    },
+    ["APIEndpoint"] = {
+      fields = { "type", "status", "generated", "verified", "stale_after", "resource", "tags", "method", "path" },
+      headings = { "Summary", "Path Params", "Query Params", "Headers", "Responses", "Examples" },
+    },
+    ["APISchema"] = {
+      fields = { "type", "status", "generated", "verified", "stale_after", "resource", "tags" },
+      headings = { "Fields", "JSON Example" },
+    },
+    ["Playbook"] = {
+      fields = { "type", "status", "generated", "verified", "stale_after", "tags" },
+      headings = { "Trigger", "Steps" },
+    },
+    ["Metric"] = {
+      fields = { "type", "status", "generated", "verified", "stale_after", "tags", "resource" },
+      headings = { "Definition" },
+    },
+    ["AttestedComputation"] = {
+      fields = { "type", "status", "generated", "verified", "stale_after", "tags", "runtime", "parameters", "executor", "attester" },
+      headings = { "Computation" },
+    },
+  },
 }
+-- @@OKF_SCHEMA_END@@
+local META_FIELDS = schema.meta_fields or {}
+local BY_TYPE = schema.by_type or {}
 
 local function esc(s)
-  s = s:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;")
+  s = s:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;"):gsub('"', "&quot;")
   return s
 end
 
-local function fmtPlain(t)
-  local n, isMap = 0, false
-  for k in pairs(t) do
-    n = n + 1
-    if type(k) ~= "number" then
-      isMap = true
-    end
+-- ---------- JSON (structural) serialization ----------
+
+-- Normalize a pandoc value into a plain Lua value (scalar / array / map).
+local function norm(v)
+  if v == nil then
+    return nil
   end
-  if isMap then
-    local parts = {}
-    for k, val in pairs(t) do
-      table.insert(parts, tostring(k) .. ": " .. fmt(val))
+  local tv = type(v)
+  if tv == "userdata" then
+    local t = v.t
+    if t == "MetaMap" then
+      local out = {}
+      for k, val in pairs(v) do
+        out[tostring(k)] = norm(val)
+      end
+      return out
     end
-    table.sort(parts)
-    return table.concat(parts, ", ")
-  end
-  local items = {}
-  for i = 1, n do
-    if t[i] ~= nil then
-      items[#items + 1] = t[i]
+    if t == "MetaList" then
+      local out = {}
+      for i, item in ipairs(v) do
+        out[i] = norm(item)
+      end
+      return out
     end
+    return pandoc.utils.stringify(v)
   end
-  local hasSpace = false
-  for _, item in ipairs(items) do
-    local it = type(item) == "userdata" and item.t or nil
-    if it == "Space" or it == "SoftBreak" or it == "LineBreak" then
-      hasSpace = true
-      break
-    end
-  end
-  if hasSpace then
-    local buf = {}
-    for _, item in ipairs(items) do
-      local it = type(item) == "userdata" and item.t or nil
-      if it == "Space" or it == "SoftBreak" then
-        table.insert(buf, " ")
-      elseif it == "LineBreak" then
-        table.insert(buf, "\n")
-      else
-        table.insert(buf, pandoc.utils.stringify(item))
+  if tv == "table" then
+    -- pandoc inline list (e.g. MetaInlines): a sequence of inline nodes that
+    -- should be joined into a single string, not treated as a JSON array.
+    if #v > 0 then
+      local looksInline = true
+      for i = 1, #v do
+        local item = v[i]
+        if type(item) ~= "userdata" or item.t == nil then
+          looksInline = false
+          break
+        end
+      end
+      if looksInline then
+        return pandoc.utils.stringify(v)
       end
     end
-    return table.concat(buf)
-  end
-  local parts = {}
-  for _, item in ipairs(items) do
-    local s = fmt(item)
-    if s ~= "" then
-      table.insert(parts, s)
+    local isArr = true
+    for k in pairs(v) do
+      if type(k) ~= "number" then
+        isArr = false
+        break
+      end
     end
+    if isArr then
+      local out = {}
+      for i = 1, #v do
+        out[i] = norm(v[i])
+      end
+      return out
+    end
+    if next(v) == nil then
+      return {}
+    end
+    local out = {}
+    for k, val in pairs(v) do
+      out[tostring(k)] = norm(val)
+    end
+    return out
   end
-  return table.concat(parts, "; ")
+  return v
 end
+
+local function jencode(v)
+  local function escs(s)
+    return s:gsub("\\", "\\\\"):gsub('"', '\\"'):gsub("\n", "\\n"):gsub("\r", "\\r"):gsub("\t", "\\t")
+  end
+  local function enc(x)
+    local tx = type(x)
+    if tx == "nil" then
+      return "null"
+    elseif tx == "number" then
+      return tostring(x)
+    elseif tx == "boolean" then
+      return tostring(x)
+    elseif tx == "string" then
+      return '"' .. escs(x) .. '"'
+    elseif tx == "table" then
+      local isArr = true
+      for k in pairs(x) do
+        if type(k) ~= "number" then
+          isArr = false
+          break
+        end
+      end
+      if isArr then
+        local parts = {}
+        for i = 1, #x do
+          parts[i] = enc(x[i])
+        end
+        return "[" .. table.concat(parts, ",") .. "]"
+      end
+      local keys = {}
+      for k in pairs(x) do
+        table.insert(keys, k)
+      end
+      table.sort(keys)
+      local parts = {}
+      for _, k in ipairs(keys) do
+        parts[#parts + 1] = enc(k) .. ":" .. enc(x[k])
+      end
+      return "{" .. table.concat(parts, ",") .. "}"
+    end
+    return "null"
+  end
+  return enc(v)
+end
+
+-- ---------- Human-readable flattened rendering ----------
 
 function fmt(v)
   if v == nil then
@@ -91,64 +169,45 @@ function fmt(v)
     return tostring(v)
   end
   if tv == "table" then
-    return fmtPlain(v)
-  end
-  local t = v.t
-  if t == "MetaMap" then
-    local parts = {}
-    for k, val in pairs(v) do
-      table.insert(parts, tostring(k) .. ": " .. fmt(val))
+    if #v > 0 then
+      local looksInline = true
+      for i = 1, #v do
+        local item = v[i]
+        if type(item) ~= "userdata" or item.t == nil then
+          looksInline = false
+          break
+        end
+      end
+      if looksInline then
+        return pandoc.utils.stringify(v)
+      end
     end
-    table.sort(parts)
-    return table.concat(parts, ", ")
-  elseif t == "MetaList" then
-    local firstItem = v[1]
-    if firstItem and firstItem.t == "MetaMap" then
+    local keys = {}
+    local isArr = true
+    for k in pairs(v) do
+      if type(k) ~= "number" then
+        isArr = false
+      end
+      table.insert(keys, k)
+    end
+    if isArr then
       local parts = {}
       for _, item in ipairs(v) do
-        table.insert(parts, fmt(item))
+        local s = fmt(item)
+        if s ~= "" then
+          parts[#parts + 1] = s
+        end
       end
       return table.concat(parts, "; ")
     end
-    local hasSpace = false
-    for _, item in ipairs(v) do
-      if item.t == "Space" or item.t == "SoftBreak" or item.t == "LineBreak" or item.t == "MetaInlines" then
-        hasSpace = true
-        break
-      end
-    end
-    if hasSpace then
-      local buf = {}
-      for _, item in ipairs(v) do
-        if item.t == "Space" or item.t == "SoftBreak" then
-          table.insert(buf, " ")
-        elseif item.t == "LineBreak" then
-          table.insert(buf, "\n")
-        else
-          table.insert(buf, pandoc.utils.stringify(item))
-        end
-      end
-      return table.concat(buf)
-    end
+    table.sort(keys, function(a, b)
+      return tostring(a) < tostring(b)
+    end)
     local parts = {}
-    for _, item in ipairs(v) do
-      local s = pandoc.utils.stringify(item)
-      if s ~= "" then
-        table.insert(parts, s)
-      end
+    for _, k in ipairs(keys) do
+      table.insert(parts, tostring(k) .. ": " .. fmt(v[k]))
     end
-    return table.concat(parts, "; ")
-  elseif t == "MetaInlines" then
-    return pandoc.utils.stringify(v)
-  elseif t == "MetaBlocks" then
-    local parts = {}
-    for _, item in ipairs(v) do
-      local s = fmt(item)
-      if s ~= "" then
-        table.insert(parts, s)
-      end
-    end
-    return table.concat(parts, "; ")
+    return table.concat(parts, ", ")
   end
   return pandoc.utils.stringify(v)
 end
@@ -159,7 +218,13 @@ function Pandoc(doc)
     return doc
   end
 
+  local typeName = tostring(pandoc.utils.stringify(meta["type"]))
+  -- optional validation hint, not enforced by the filter
+  local typeDef = BY_TYPE[typeName]
+
   local rows = {}
+  local structured = {}
+  local seen = {}
   for _, field in ipairs(META_FIELDS) do
     local value = meta[field]
     if value ~= nil then
@@ -167,6 +232,18 @@ function Pandoc(doc)
         pandoc.RawBlock("html", "<dt>" .. esc(field) .. "</dt>"),
         pandoc.RawBlock("html", "<dd>" .. esc(fmt(value)) .. "</dd>"),
       })
+      structured[field] = norm(value)
+      seen[field] = true
+    end
+  end
+  -- also surface any present optional/custom fields not in the core list
+  for k, value in pairs(meta) do
+    if not seen[k] then
+      table.insert(rows, {
+        pandoc.RawBlock("html", "<dt>" .. esc(tostring(k)) .. "</dt>"),
+        pandoc.RawBlock("html", "<dd>" .. esc(fmt(value)) .. "</dd>"),
+      })
+      structured[tostring(k)] = norm(value)
     end
   end
 
@@ -176,10 +253,20 @@ function Pandoc(doc)
 
   local blocks = {}
   table.insert(blocks, pandoc.RawBlock("html", '<div class="concept-meta">'))
+  -- structured JSON for machine consumers (Playwright parse .concept-meta-json)
+  table.insert(
+    blocks,
+    pandoc.RawBlock(
+      "html",
+      '<script type="application/json" class="concept-meta-json">' .. jencode(structured) .. "</script>"
+    )
+  )
+  table.insert(blocks, pandoc.RawBlock("html", '<dl class="concept-meta-dl">'))
   for _, pair in ipairs(rows) do
     table.insert(blocks, pair[1])
     table.insert(blocks, pair[2])
   end
+  table.insert(blocks, pandoc.RawBlock("html", "</dl>"))
   table.insert(blocks, pandoc.RawBlock("html", "</div>"))
 
   local insertAt = 1

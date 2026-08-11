@@ -22,7 +22,8 @@ OKF は「1 概念 = 1 ファイル」です。各 `.qmd` の先頭に YAML fron
 ## 型の拡張
 
 型は [tools/okf-types.json](../tools/okf-types.json) の type レジストリで管理しています。
-エントリを 1 つ追加すれば、frontmatter の検証・サイト描画・抽出規約が自動で追随します。
+ここが単一の source of truth です。エントリを 1 つ追加し、スキーマを再生成すれば、
+frontmatter の検証・サイト描画・抽出規約が追随します。
 
 ```json
 {
@@ -34,6 +35,31 @@ OKF は「1 概念 = 1 ファイル」です。各 `.qmd` の先頭に YAML fron
   }
 }
 ```
+
+型を追加/変更したら、レジストリから Quarto フィルタのスキーマを再生成します。
+
+```bash
+node tools/gen-schema.mjs        # _extensions/okf/okf-meta.lua のスキーマを更新
+node tools/gen-schema.mjs --check # (CI で使用) 差分があると終了コード 1
+```
+
+- `frontmatter` … その型に必須のフィールド(共通の `type` / `status` / `generated` / `verified` / `stale_after` は常に付与)
+- `headings` … 推奨見出し規約(見出しベースの DOM 抽出を安定させる)
+
+## 共通フィールド
+
+共通必須:
+
+- `type`(必須): 概念の種別
+- `status`: `draft` | `stable` | `deprecated`
+- `generated`: 生成者と日時 `{ by, at }`
+- `verified`: 検証イベント `by` / `at`
+- `stale_after`: 鮮度切れ日
+
+任意(型共通):
+
+- `title` / `description` / `resource` / `tags`
+- `sources`: 出所の一覧(`id` / `resource` / `title`)
 
 ## 見出し規約
 

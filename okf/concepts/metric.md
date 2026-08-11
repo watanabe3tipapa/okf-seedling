@@ -12,6 +12,6 @@ stale_after: 2026-12-31
 # Definition
 
 認識済み売上は会計年度に計上された `amount` の合計で、
-[revenue の計算定義](attested-computation.qmd) が正となる。
+[revenue の計算定義](attested-computation.md) が正となる。
 
-関連計算は [Attested Computation](attested-computation.qmd) を参照。
+関連計算は [Attested Computation](attested-computation.md) を参照。
