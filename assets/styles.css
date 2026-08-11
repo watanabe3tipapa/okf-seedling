@@ -46,8 +46,20 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text);
 }
 
+h1 {
+  background: linear-gradient(90deg, #eef1fb 10%, #a9c1ff 55%, #a36bff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
 a {
   color: var(--accent);
+}
+a:hover {
+  color: var(--accent-3);
+  text-decoration-color: rgba(35, 211, 238, 0.6);
 }
 
 /* navbar: reference header look */
@@ -129,9 +141,14 @@ code {
 pre,
 .sourceCode {
   background-color: var(--bg-soft);
+  background-image: linear-gradient(200deg, rgba(35, 211, 238, 0.05), transparent 40%);
   border: 1px solid var(--border);
+  border-left: 3px solid;
+  border-image: linear-gradient(180deg, #4f8dff, #a36bff, #23d3ee) 1;
+  border-left-style: solid;
   border-radius: 8px;
   color: var(--text);
+  box-shadow: inset 0 0 24px rgba(79, 141, 255, 0.06);
 }
 pre code {
   color: inherit;
@@ -144,8 +161,12 @@ pre code {
   margin-bottom: 1rem;
   padding: 0.75rem 1rem;
   border: 1px solid var(--border);
+  border-left: 3px solid;
+  border-image: linear-gradient(180deg, #4f8dff, #a36bff) 1;
+  border-left-style: solid;
   border-radius: 8px;
   background: var(--panel);
+  background-image: linear-gradient(160deg, rgba(79, 141, 255, 0.10), transparent 55%);
 }
 
 .concept-meta dl {
@@ -171,8 +192,9 @@ pre code {
   font-weight: 600;
   border-radius: 999px;
   background: var(--bg-soft);
-  border: 1px solid var(--border);
-  color: var(--text-dim);
+  background-image: linear-gradient(160deg, rgba(35, 211, 238, 0.12), rgba(163, 107, 255, 0.12));
+  border: 1px solid rgba(79, 141, 255, 0.4);
+  color: #c7d2fe;
 }
 
 /* footnotes */
