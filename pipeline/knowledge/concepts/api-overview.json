@@ -1,0 +1,51 @@
+{
+  "id": "api-overview",
+  "type": "APIOverview",
+  "url": "concepts/api-overview.html",
+  "title": "MyService API",
+  "meta": {
+    "type": "APIOverview",
+    "status": "stable",
+    "title": "MyService API",
+    "description": "MyService の基本仕様(認証・バージョン・エラー形式など)",
+    "resource": "https://example.com/api",
+    "tags": "api; myservice",
+    "generated": "at: 2026-08-11T00:00:00Z, by: human:okf-seedling",
+    "verified": "at: 2026-08-11T00:00:00Z, by: human:okf-seedling",
+    "stale_after": "2026-12-31",
+    "sources": "id: swagger, resource: https://example.com/openapi.json, title: OpenAPI 定義"
+  },
+  "sections": [
+    {
+      "heading": "Base URL",
+      "level": 1,
+      "blocks": [
+        "https://example.com"
+      ]
+    },
+    {
+      "heading": "Versioning",
+      "level": 1,
+      "blocks": [
+        "v1。破壊的変更はメジャーアップグレードで行う。"
+      ]
+    },
+    {
+      "heading": "Authentication",
+      "level": 1,
+      "blocks": [
+        "- リクエストヘッダ Authorization: Bearer <token> で認証する。\n- トークン発行は POST /v1/auth/token を参照。"
+      ]
+    },
+    {
+      "heading": "Common Errors",
+      "level": 1,
+      "blocks": [
+        "Status | Meaning\n400 | Bad Request(バリデーションエラー)\n401 | Unauthorized(トークン欠落・失効)\n404 | Not Found(リソース不存在)\n429 | Too Many Requests(レート制限)\n500 | Internal Server Error",
+        "共通スキーマは API Overview の各エンドポイント と共有する。1"
+      ]
+    }
+  ],
+  "learnedAt": "2026-08-11T05:44:10.206Z",
+  "hash": "2364ff168c419298"
+}

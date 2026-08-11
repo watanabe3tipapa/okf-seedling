@@ -100,7 +100,20 @@ okf-seedling/                        ← quarto use template 対象 (ルート=Q
 - `_quarto.yml` の `format: okf-html` は拡張 `_extensions/okf/`(Custom Format)が提供する形式。Quarto 1.3 は `website: footer` 非対応のためフッターは未使用
 - `project.render: ["*.qmd"]` のみを対象にし、DEV-MEMO.md / okf/ の .md をサイト入力から除外
 - frontmatter の HTML 描画(`.concept-meta`)は okf-meta.lua が担当。Quarto 経由の metadata 値は「平テーブル(インライン要素)」「MetaList」「MetaMap」等が混在するため、型を判別して整形する
-- M5 の Playwright では `page.locator('.concept-meta')` と見出し(`concepts/<type>.html` 内の h1/h2)を安定セレクタとして使う予定
+
+## デプロイ状況
+
+- GitHub Pages: https://watanabe3tipapa.github.io/okf-seedling/ 公開済み(`build_type: workflow`、push / workflow_dispatch で自動)
+- Cloudflare Pages: ユーザー側で設定中。**ビルドコマンドが `npx wrangler deploy`(Workers用)のままで静的ディレクトリを検出できないエラーが出ていた**。Pages プロジェクトのビルドコマンドを「Quarto を導入して render」に変更し、出力ディレクトリを `_site` にする必要がある
+- GitHub Actions の `deploy-cloudflare-pages.yml`(wrangler-action 経由)はシークレット `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` 未設定のためまだ動かない(パスは GH Pages 側のみ選択)
+
+## M5: Playwright 学習パイプライン
+
+- `pipeline/src/learn.mjs` + `extract.mjs`。`_site/concepts/*.html` を file:// で読み、concept 単位で `pipeline/knowledge/concepts/<id>.json` に蓄積
+- 安定セレクタ: ルート `#quarto-document-content`、メタ情報 `.concept-meta` の dt/dd、セクションは h1/h3(Quarto は `<section class="levelN">` でラップするため文書順に h1/h3 を辿って切り出す)
+- 差分更新: meta + sections の sha256(先頭16桁)を `hash` として保持し、同一なら `unchanged` でスキップ(updated / new / unchanged を index.json に集計)
+- 実行: `quarto render && cd pipeline && npm run learn`
+- 環境: Playwright 1.49.1 を固定(macOS 13 対応の最終版。1.62 は mac13 非対応)
 
 ## その他メモ
 

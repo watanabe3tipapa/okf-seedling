@@ -1,0 +1,45 @@
+{
+  "generatedAt": "2026-08-11T05:44:31.561Z",
+  "total": 6,
+  "byStatus": {
+    "unchanged": 6
+  },
+  "concepts": [
+    {
+      "id": "api-endpoint",
+      "type": "APIEndpoint",
+      "status": "unchanged",
+      "sections": 8
+    },
+    {
+      "id": "api-overview",
+      "type": "APIOverview",
+      "status": "unchanged",
+      "sections": 4
+    },
+    {
+      "id": "api-schema",
+      "type": "APISchema",
+      "status": "unchanged",
+      "sections": 2
+    },
+    {
+      "id": "attested-computation",
+      "type": "AttestedComputation",
+      "status": "unchanged",
+      "sections": 1
+    },
+    {
+      "id": "metric",
+      "type": "Metric",
+      "status": "unchanged",
+      "sections": 1
+    },
+    {
+      "id": "playbook",
+      "type": "Playbook",
+      "status": "unchanged",
+      "sections": 2
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "id": "api-schema",
+  "type": "APISchema",
+  "url": "concepts/api-schema.html",
+  "title": "UserResponse",
+  "meta": {
+    "type": "APISchema",
+    "status": "stable",
+    "title": "UserResponse",
+    "description": "Get User のレスポンスボディ",
+    "resource": "https://example.com/api/schema/user-response",
+    "tags": "schema; users",
+    "generated": "at: 2026-08-11T00:00:00Z, by: human:okf-seedling",
+    "verified": "at: 2026-08-11T00:00:00Z, by: human:okf-seedling",
+    "stale_after": "2026-12-31"
+  },
+  "sections": [
+    {
+      "heading": "Fields",
+      "level": 1,
+      "blocks": [
+        "Field | Type | Required | Description\nid | string | yes | ユーザーID\nname | string | yes | 表示名\nemail | string | no | メールアドレス"
+      ]
+    },
+    {
+      "heading": "JSON Example",
+      "level": 1,
+      "blocks": [
+        "{ \"id\": \"123\", \"name\": \"Taro\", \"email\": \"taro@example.com\" }"
+      ]
+    }
+  ],
+  "learnedAt": "2026-08-11T05:44:10.318Z",
+  "hash": "4ae91788af38308e"
+}

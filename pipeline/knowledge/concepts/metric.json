@@ -1,0 +1,29 @@
+{
+  "id": "metric",
+  "type": "Metric",
+  "url": "concepts/metric.html",
+  "title": "Revenue",
+  "meta": {
+    "type": "Metric",
+    "status": "stable",
+    "title": "Revenue",
+    "description": "特定会計年度の認識済み売上。",
+    "resource": "urn:metric:acme:revenue",
+    "tags": "finance; revenue",
+    "generated": "at: 2026-08-11T00:00:00Z, by: human:okf-seedling",
+    "verified": "at: 2026-08-11T00:00:00Z, by: human:okf-seedling",
+    "stale_after": "2026-12-31"
+  },
+  "sections": [
+    {
+      "heading": "Definition",
+      "level": 1,
+      "blocks": [
+        "認識済み売上は会計年度に計上された amount の合計で、 revenue の計算定義 が正となる。",
+        "関連計算は Attested Computation を参照。"
+      ]
+    }
+  ],
+  "learnedAt": "2026-08-11T05:44:10.800Z",
+  "hash": "1c95bb3691da8f9e"
+}
