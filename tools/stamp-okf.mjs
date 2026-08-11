@@ -3,7 +3,8 @@
 // post-render: concepts/*.qmd (source of truth) -> okf/ OKF v0.2 bundle (.md).
 // Keeps the YAML frontmatter verbatim, preserving provenance/trust metadata for agents.
 
-import { readdir, readFile, writeFile, mkdir, rm, stat, readFileSync } from "node:fs/promises";
+import { readdir, readFile, writeFile, mkdir, rm, stat } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import { resolve, join, basename, dirname } from "node:path";
 
 const ROOT = resolve(import.meta.dirname, "..");

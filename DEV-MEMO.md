@@ -141,3 +141,11 @@ okf-seedling/                        ← quarto use template 対象 (ルート=Q
 - CLI: `node tools/validate-okf.mjs --versions` で current / supported / 各バージョンのルール概要を表示
 - 将来 OKF 0.3 対応手順 … ① `okf-version.json` に `"0.3"` 追加 + `current` 更新、② `validate-okf.mjs` の `RULES` マップに `"0.3"` ルール追加。宣言バンドルは自動で厳密チェックへ切替
 - 落とし穴対策: `okf_version` は stamp 生成値と config を常に同期(生成現場で直書きしない)
+
+## M7: LP ダークテーマ(hatch-marimo-sandbox 踏襲)
+
+- 参照: https://watanabe3tipapa.github.io/hatch-marimo-sandbox/ の配色(ダーク + 青→紫グラデーション)
+- 実装: `assets/styles.css` で CSS 変数 + Bootstrap 変数(`--bs-*`)を上書き。`theme: cosmo` は維持し、スタイルシートが最後に読み込まれるのを利用
+- パレット: bg `#0f1117` / panel `#1c202b` / border `#2a2f3d` / text `#e8eaf0` / dim `#9aa2b5` / accent `#4f8cff` / accent2 `#8b5cf6`
+- navbar-brand はグラデーションテキスト、カードは panel 背景 + 角丸 12px、テーブルは border 色 + セル本文色を明色に
+- 注意: テーブルは Bootstrap のセル実色が cosmo の濃色に勝つため `.table th/td` は `!important` で上書き
