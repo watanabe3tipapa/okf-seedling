@@ -227,7 +227,7 @@ okf-seedling/                        ← quarto use template 対象 (ルート=Q
 
 ## M11: ツールバージョン管理(v0.3.0 以降)
 
-- ツール本体のバージョンは `tools/tool-version.json`(単一 source of truth)。現行 `0.3.1`
+- ツール本体のバージョンは `tools/tool-version.json`(単一 source of truth)。現行 `0.3.2`
 - **方針: 機能追加はマイナーアップデートで積み上げる**(0.3.x / 0.4.0 / …)
 - 表示: README バッジ(Version)・`node tools/validate-okf.mjs --versions` の `tool:` 行
 - リリース時: `tools/tool-version.json` の `current` 更新 → README バッジ URL 更新 → `git tag vX.Y.Z` → push
