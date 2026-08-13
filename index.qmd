@@ -3,6 +3,10 @@ title: "okf-seedling"
 description: OKF v0.2 準拠の知識バンドルを作成する Quarto テンプレートツール
 ---
 
+::: {.eyecatch}
+![](assets/logo_okf-seedling.jpg)
+:::
+
 # okf-seedling
 
 Open Knowledge Format (OKF) v0.2 に準拠した **知識バンドル** を、Quarto だけで作って公開するテンプレートツールです。
@@ -40,6 +44,10 @@ GitHub Pages と Cloudflare Pages に並行デプロイ。frontmatter は HTML �
 :::
 
 :::
+
+## OKF × RAG Synergy
+
+OKF(Open Knowledge Format)と RAG は競合ではなく、OKF バンドルが RAG の精度を左右する **RAG-ready な知識基盤**になる補完関係です。実バンドル例でシナジーを分解します。[解説を読む](tutorial/okf-rag.qmd)
 
 ## Concept 型
 
