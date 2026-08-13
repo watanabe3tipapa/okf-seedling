@@ -224,3 +224,11 @@ okf-seedling/                        ← quarto use template 対象 (ルート=Q
 | 実現性 | 中 | 中(だが脆い) | **高** |
 | 主なリスク | 秘密情報 / ZBODY 難 | キャッシュ脆さ / 秘密 / API秘密 | wikilink変換 / 型付与 |
 | 判断 | 回避 | 回避/保留 | **最有力(要指示)** |
+
+## M11: ツールバージョン管理(v0.3.0 以降)
+
+- ツール本体のバージョンは `tools/tool-version.json`(単一 source of truth)。現行 `0.3.0`
+- **方針: 機能追加はマイナーアップデートで積み上げる**(0.3.x / 0.4.0 / …)
+- 表示: README バッジ(Version)・`node tools/validate-okf.mjs --versions` の `tool:` 行
+- リリース時: `tools/tool-version.json` の `current` 更新 → README バッジ URL 更新 → `git tag vX.Y.Z` → push
+- 注意: ツール版と **OKF 仕様対応版(`tools/okf-version.json`)は別物**。仕様準拠 v0.2 の読者は OKF current が指す物を参照
