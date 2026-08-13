@@ -17,6 +17,14 @@
 //   * required provenance/headings conventions (warnings where stylistically soft)
 //   * internal markdown links resolve inside the bundle (or are declared external)
 //
+// As a linter for information bundles it also warns on quality signals:
+//   * stale_after が期限切れ(鮮度)
+//   * title / description の欠落(発見可能性)
+//   * 本文が空(学習可能性)
+//   * 未登録 type / 推奨見出し / provenance 形式(規約からの逸脱)
+//
+// Errors exit 1 (CI ゲート)。Warnings は成功のまま報告されます(品質シグナル)。
+//
 // Upgrading to a new OKF version:
 //   1. add the version to tools/okf-version.json (`supported` and bump `current`)
 //   2. add a ruleset under RULES for that version (defaults apply otherwise)
@@ -244,6 +252,26 @@ async function main() {
       }
     }
 
+    // -- linter: freshness / discoverability / completeness (soft, quality) --
+    const staleRaw = scalarValue(yaml, "stale_after");
+    if (staleRaw) {
+      const stale = new Date(staleRaw.replace(/["']/g, ""));
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (!Number.isNaN(stale.getTime()) && stale < today) {
+        warnings.push(`${rel}: stale_after(${staleRaw}) は期限切れです。見直し・更新を推奨します`);
+      }
+    }
+    if (!scalarValue(yaml, "title")) {
+      warnings.push(`${rel}: title がありません。エージェントのインデックスに効く表示名を推奨します`);
+    }
+    if (!scalarValue(yaml, "description")) {
+      warnings.push(`${rel}: description がありません。検索・要約の手がかりになる一言要約を推奨します`);
+    }
+    if (!body.trim()) {
+      warnings.push(`${rel}: 本文が空です。frontmatter だけの概念はエージェントが学習できません`);
+    }
+
     // -- required headings (convention) --
     if (checkHeadings && type && TYPE_NAMES.includes(type)) {
       const thr = typeRegistry[type]?.headings ?? [];
@@ -305,6 +333,17 @@ function valueBlock(yaml, key) {
 }
 function escapeRe(s) {
   return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// scalar (first-line) string value of a top-level key; "" if missing or nested.
+function scalarValue(yaml, key) {
+  for (const line of yaml.split(/\r?\n/)) {
+    const m = /^([A-Za-z_][A-Za-z0-9_]*):\s*(.*)$/.exec(line);
+    if (m && m[1] === key) {
+      return m[2].replace(/^["']|["']$/g, "").trim();
+    }
+  }
+  return "";
 }
 
 main().catch((err) => {

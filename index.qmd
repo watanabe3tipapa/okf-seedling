@@ -9,11 +9,26 @@ description: OKF v0.2 準拠の知識バンドルを作成する Quarto テン�
 
 # okf-seedling
 
-Open Knowledge Format (OKF) v0.2 に準拠した **知識バンドル** を、Quarto だけで作って公開するテンプレートツールです。
+ドキュメントを **エージェントに読める形で整え、公開する** Quarto テンプレートツールです。
+
+LLM やエージェントに知識を読ませたいのに、検索がズレて回答がハズレる — それは文章が悪いのではなく、**知識が「形式」に沿って整理されていない**からです。
+
+- **Why**: 人間向けの文章のままでは、エージェントは概念の区切り・メタ情報・鮮度を正しく読めない
+- **What**: OKF(Open Knowledge Format)は知識を「1 概念 1 ファイル + フロントマター」に構造化する形式
+- **How**: `.qmd` を書くだけで、**人間用 HTML** と **機械用 OKF バンドル**、さらに**リンターチェック**までが同時に生まれる
+
+```{mermaid}
+flowchart LR
+    Q["concepts/*.qmd<br>書く(1 概念 1 ファイル)"] --> L["quarto render"]
+    L --> H["_site/<br>人間用 HTML"]
+    L --> O["okf/<br>機械用 OKF バンドル"]
+    O --> V["validate-okf リンター<br>準拠 + 品質警告"]
+```
 
 - エージェントにも人間にも読める `.qmd` をソースに
 - `quarto use template` 一発でバンドル雛形を生成
 - レンダリングで **人間用HTML** と **機械用OKFバンドル** を二系統出力
+- **リンターツール**として準拠チェック + 鮮度・欠落の品質警告
 - GitHub Pages / Cloudflare Pages に並行デプロイ
 
 ## OKF バンドルとは
@@ -48,6 +63,16 @@ GitHub Pages と Cloudflare Pages に並行デプロイ。frontmatter は HTML �
 ## OKF × RAG Synergy
 
 OKF(Open Knowledge Format)と RAG は競合ではなく、OKF バンドルが RAG の精度を左右する **RAG-ready な知識基盤**になる補完関係です。実バンドル例でシナジーを分解します。[解説を読む](tutorial/okf-rag.qmd)
+
+## まず読んでほしい
+
+OKF や知識バンドルが初めての方は、この順で読んでください。
+
+1. [0. What is OKF](tutorial/00-what-is-okf.qmd) — OKF・バンドル・用語の基礎(10 分)
+2. [1. Create a Bundle](tutorial/01-create-bundle.qmd) — 実際に作ってみる
+3. [2. Concept Types](tutorial/02-concept-type.qmd) — 6 種の型の書き方
+4. [3. Deploy](tutorial/03-deploy.qmd) — 公開する
+5. [OKF × RAG Synergy](tutorial/okf-rag.qmd) — なぜエージェントに効くのか
 
 ## Concept 型
 

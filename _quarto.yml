@@ -32,6 +32,8 @@ website:
             text: Attested Computation
       - text: Tutorial
         menu:
+          - href: tutorial/00-what-is-okf.qmd
+            text: 0. What is OKF
           - href: tutorial/01-create-bundle.qmd
             text: 1. Create Bundle
           - href: tutorial/02-concept-type.qmd

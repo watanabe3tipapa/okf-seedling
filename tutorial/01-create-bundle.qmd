@@ -41,3 +41,51 @@ node tools/validate-okf.mjs
 
 出力バンドルが OKF v0.2 に準拠しているか、type レジストリ(`tools/okf-types.json`)駆動で
 必須 frontmatter・provenance・内部リンクの解決可能性をチェックします。
+
+## 実際の入出力を見る
+
+テンプレートが何を生むのか、実在ファイルで確認しましょう。ソースは `concepts/api-endpoint.qmd`(1 概念 1 ファイル)です。
+
+**入力(概念の 1 つ):**
+
+```markdown
+---
+type: APIEndpoint
+title: "Get User"
+description: ユーザー情報を取得する。
+resource: https://example.com/api/v1/users/{userId}
+method: GET
+path: /v1/users/{userId}
+tags: [read, users]
+status: stable
+generated: { by: human:okf-seedling, at: 2026-08-11T00:00:00Z }
+verified: { by: human:okf-seedling, at: 2026-08-11T00:00:00Z }
+stale_after: 2026-12-31
+---
+
+# Summary
+
+ユーザーID からユーザー情報を取得する。
+
+# Responses
+
+- 200: OK
+  - schema: [UserResponse](api-schema.qmd)
+```
+
+**出力 `okf/concepts/api-endpoint.md`(機械用バンドル):**
+
+`quarto render` が `.qmd` のまま `okf/concepts/` へコピーし、frontmatter を保持します。エージェントはこの `.md` を読み、`type: APIEndpoint` / `method: GET` / `stale_after` などの辞書情報と見出し(Summary / Responses)を構造として解釈します。
+
+**人間用 HTML では:**
+
+同じソースが `_site/concepts/api-endpoint.html` としてレンダリングされ、frontmatter はページ上部の **メタ情報ブロック**(`.concept-meta`)に表示されます。人間が読むサイトと、エージェントが読むバンドルが、**同じ 1 ファイルから同時に**生まれていることが実感できます。
+
+## リンターとして使う
+
+`validate-okf.mjs` は単なる合格/不合格の検査でなく、**情報バンドル向けリンター**として品質にも目を配ります。
+
+- **エラー(CI を止める)**: frontmatter 欠落、必須 type なし、型ごとの必須フィールド不足、解決できない内部リンク
+- **警告(成功のまま報告)**: `stale_after` の期限切れ、`title` / `description` の欠落、本文が空、未登録 type
+
+鮮度・発見可能性・学習可能性の観点で、保守性を下げるサインを早めに知らせてくれます。
