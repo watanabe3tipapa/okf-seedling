@@ -5,15 +5,23 @@ description: quarto use template で新しい OKF バンドルを作成する手
 
 # 新しいバンドルを作成する
 
-## 前提
+## 前提条件
 
-- [Quarto](https://quarto.org/docs/get-started/) (>= 1.3) がインストール済み
-- GitHub に公開済みのテンプレートリポジトリ
+始める前に、次のツールが入っていることを確認してください。
 
-## 手順
+| ツール | 必要バージョン | 確認コマンド | 導入方法 |
+|---|---|---|---|
+| [Quarto](https://quarto.org/docs/get-started/) | >= 1.3 | `quarto --version` | macOS: `brew install quarto` / 公式インストーラ |
+| [Node.js](https://nodejs.org/) | >= 20 | `node --version` | macOS: `brew install node` / 公式インストーラ |
+| Git | 任意(デプロイ・貢献時) | `git --version` | — |
+
+- Node.js は `tools/` の検証・バンドル生成スクリプト(`*.mjs`)が使うため必須です
+- 未インストールならまず `brew install quarto node` を実行してください
+
+## バンドルの雛形を作る
 
 ```bash
-quarto use template <your-github-org>/okf-seedling
+quarto use template watanabe3tipapa/okf-seedling
 ```
 
 空ディレクトリで実行すると、以下の成果物が生成されます。
@@ -23,6 +31,24 @@ quarto use template <your-github-org>/okf-seedling
 - `tutorial/`(このドキュメント群)
 - `tools/`(バンドル生成・検証・スキーマ生成スクリプト)
 - `_extensions/okf/`(frontmatter → HTML 表示の Quarto 拡張)
+
+### このコマンドで何が起きるか
+
+- `quarto use template` は **GitHub からテンプレートを自動取得**して現在のディレクトリへ展開します。**git clone は不要**です
+- 展開に含まれるのは雛形だけです。`.quartoignore` に指定された `okf/`(生成物)・`pipeline/`(学習パイプライン)・`.github/`(CI)・`DEV-MEMO.md` は**展開されません**
+- テンプレートは複数の候補から選ぶこともできます。まず「okf-seedling」を選んでください
+
+> 開発やコントリビューションでリポジトリ全体(CI・パイプライン込み)が欲しい場合のみ、`git clone` を使ってください。通常の利用では `quarto use template` が本命です。
+
+## 最初にいじる場所
+
+展開直後の最初の編集ポイントは **`concepts/` ディレクトリ**です。ここに `type` を記した `.qmd` を置くだけで、あなたの knowledge はバンドルの一部になります。
+
+1. `concepts/` に自分の知識を `.qmd` で書く(雛形をコピーして編集が早い)
+2. 編集後 `quarto render` を実行
+3. `node tools/validate-okf.mjs` で検証
+
+「何をどう書くか」は [2. Concept Types](02-concept-type.qmd) を参照してください。
 
 ## レンダリング
 

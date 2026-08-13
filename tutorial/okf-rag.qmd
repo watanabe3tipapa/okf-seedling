@@ -155,9 +155,11 @@ OKF 側で決めるべき設計項目と、RAG に効く観点です。
 "RAG を強くしたい"なら、まず知識を **RAG-ready な形式**にしておくのが近道です。このリポジトリはその土台を一発で生成します。
 
 ```bash
-quarto use template <gh-org>/okf-seedling
+quarto use template watanabe3tipapa/okf-seedling
 quarto render
 node tools/validate-okf.mjs
 ```
+
+> テンプレートをフォークした場合は、`watanabe3tipapa` を自分の GitHub 組織名に置き換えます。
 
 生成された `okf/` バンドルは、そのまま RAG のインデックス・フィルタ設計に使い始められます。仕組みの詳細は[クイックスタート](01-create-bundle.qmd)、型の設計は[Concept Types](02-concept-type.qmd)を参照してください。

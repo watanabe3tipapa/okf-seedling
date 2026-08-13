@@ -58,24 +58,50 @@ This tool does not only "build" — it checks that things are **properly formed*
 
 ## Installation
 
+### Prerequisites
+
+| Tool | Required | Check |
+|---|---|---|
+| [Quarto](https://quarto.org/docs/get-started/) | >= 1.3 | `quarto --version` |
+| [Node.js](https://nodejs.org/) | >= 20 | `node --version` |
+| Git | optional (deploy/contributing) | `git --version` |
+
+On macOS both can be installed with `brew install quarto node`. On Windows / Linux use the official installers, or see [Quarto's install guide](https://quarto.org/docs/get-started/).
+
+### 1. Create the bundle skeleton
+
 ```bash
-# Generate a new knowledge bundle from the template
 quarto use template watanabe3tipapa/okf-seedling
 ```
 
-## Usage
+Run it in an empty directory — it extracts just the skeleton (`concepts/`, `tools/`, `_quarto.yml`, …). The template is fetched from GitHub automatically, so **git clone is not required** (only clone for development/contributing — see [Contributing](#contributing)).
+
+### 2. Render both the human HTML and the machine bundle
 
 ```bash
-# Render both the human HTML (_site/) and the machine OKF bundle (okf/)
 quarto render
+```
 
-# Check the generated schema is in sync with the registry
-node tools/gen-schema.mjs --check
+- `_site/` … human-readable HTML (LP, tutorials)
+- `okf/` … machine-readable OKF bundle (`index.md` / `log.md` / `concepts/*.md`)
 
-# Validate (lint) the OKF bundle against the version rules
+### 3. Validate conformance (linter)
+
+```bash
 node tools/validate-okf.mjs
+```
 
-# (Optional) learn each concept from the rendered HTML
+Checks OKF conformance and warns on quality signals (freshness, missing fields).
+
+### 4. Publish the nurtured knowledge
+
+See [3. Deploy](https://watanabe3tipapa.github.io/okf-seedling/tutorial/03-deploy.html). For writing concepts, see [1. Create a Bundle](https://watanabe3tipapa.github.io/okf-seedling/tutorial/01-create-bundle.html).
+
+### (Optional) Playwright learning pipeline
+
+Extract concept-level structured JSON from the rendered HTML.
+
+```bash
 cd pipeline && npm install && npm run learn
 ```
 

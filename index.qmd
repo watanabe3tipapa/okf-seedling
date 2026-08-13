@@ -45,7 +45,7 @@ flowchart LR
 
 ::: {.g-col-6 .g-col-md-4 .card}
 ## Create
-`quarto use template <org>/okf-seedling` で新しい知識バンドルを生成。[詳細](tutorial/01-create-bundle.qmd)
+`quarto use template watanabe3tipapa/okf-seedling` で新しい知識バンドルを生成。[詳細](tutorial/01-create-bundle.qmd)
 :::
 
 ::: {.g-col-6 .g-col-md-4 .card}
@@ -88,7 +88,7 @@ OKF や知識バンドルが初めての方は、この順で読んでくださ�
 ## Get Started
 
 ```bash
-quarto use template <your-github-org>/okf-seedling
+quarto use template watanabe3tipapa/okf-seedling
 quarto render
 node tools/validate-okf.mjs
 ```

@@ -58,24 +58,50 @@ OKF で知識を構造化しておけば、RAG のフィルタ・ランキング
 
 ## インストール
 
+### 前提条件
+
+| ツール | 必要バージョン | 確認コマンド |
+|---|---|---|
+| [Quarto](https://quarto.org/docs/get-started/) | >= 1.3 | `quarto --version` |
+| [Node.js](https://nodejs.org/) | >= 20 | `node --version` |
+| Git | 任意(デプロイ・貢献時) | `git --version` |
+
+macOS では `brew install quarto node` で両方入ります。Windows / Linux は公式インストーラ、または [Quarto の導入方法](https://quarto.org/docs/get-started/)を参照してください。
+
+### 1. バンドルの雛形を作る
+
 ```bash
-# テンプレートから新しい知識バンドルを生成
 quarto use template watanabe3tipapa/okf-seedling
 ```
 
-## 使い方
+空のディレクトリで実行すると、知識バンドルの雛形(`concepts/` / `tools/` / `_quarto.yml` など)だけが展開されます。テンプレートを GitHub から自動取得するため、**git clone は不要**です(開発・貢献時のみ [コントリビューション](#コントリビューション) から clone してください)。
+
+### 2. 人間用 HTML と機械用バンドルを両方レンダリング
 
 ```bash
-# 人間用 HTML(_site/)と機械用 OKF バンドル(okf/)を両方レンダリング
 quarto render
+```
 
-# 生成されたスキーマがレジストリと同期しているか確認
-node tools/gen-schema.mjs --check
+- `_site/` … 人間用 HTML(LP・チュートリアル)
+- `okf/` … 機械用 OKF バンドル(`index.md` / `log.md` / `concepts/*.md`)
 
-# OKF バンドルをバージョン規則に対して検証(リンター)
+### 3. 準拠を検証(リンター)
+
+```bash
 node tools/validate-okf.mjs
+```
 
-# (任意)レンダリング HTML から concept 単位で学習
+バンドルが OKF 準拠か、品質警告(鮮度・欠落)がないかをチェックします。
+
+### 4. 育てた知識を公開
+
+デプロイ方法は [3. Deploy](https://watanabe3tipapa.github.io/okf-seedling/tutorial/03-deploy.html) を参照してください。概念を書き足す手順は [1. Create a Bundle](https://watanabe3tipapa.github.io/okf-seedling/tutorial/01-create-bundle.html) へ。
+
+### (任意) Playwright 学習パイプライン
+
+レンダリング HTML から概念単位の構造化 JSON を抽出します。
+
+```bash
 cd pipeline && npm install && npm run learn
 ```
 
