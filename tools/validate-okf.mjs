@@ -42,6 +42,9 @@ const okfVersion = JSON.parse(await readFile(CFG_PATH, "utf8"));
 const CURRENT = String(okfVersion.current);
 const SUPPORTED = okfVersion.supported.map(String);
 
+const toolVersion = JSON.parse(await readFile(join(ROOT, "tools", "tool-version.json"), "utf8"));
+const TOOL_VERSION = String(toolVersion.current);
+
 const typeRegistry = JSON.parse(await readFile(TYPES_PATH, "utf8"));
 const SHARED_FIELDS = typeRegistry.shared ?? [];
 const TYPE_NAMES = Object.keys(typeRegistry).filter((k) => k !== "shared" && k !== "optional");
@@ -67,6 +70,7 @@ function cmpVersion(a, b) {
 }
 
 function printVersions() {
+  console.log(`tool:      okf-seedling v${TOOL_VERSION}`);
   console.log(`current:   ${CURRENT}`);
   console.log(`supported: ${SUPPORTED.join(", ")}`);
   console.log(`types:     ${TYPE_NAMES.join(", ")}`);
