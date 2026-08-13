@@ -18,3 +18,21 @@ body {
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
+
+/* mermaid diagrams: bigger presentation */
+.mermaid {
+  text-align: center;
+  margin: 2rem 0;
+  overflow-x: auto;
+}
+
+.mermaid svg {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  min-height: 420px;
+}
+
+.mermaid svg text {
+  font-size: 1rem;
+}

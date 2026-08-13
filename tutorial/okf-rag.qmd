@@ -94,25 +94,25 @@ OKF レコードのプロパティやリンク(参照/包含)を「絞り込み 
 
 例: [Metric](../concepts/metric.qmd)(Revenue)は、[Attested Computation](../concepts/attested-computation.qmd) への参照を持つ `type: Metric` レコードです。ここから「定義 → 計算式 → 実行器/検証器」と参照を辿れます。
 
-## シナジー実演: 質問「売上はいくら?」が辿る経路
+## シナジー実演: 質問「この資格、合格するには?」が辿る経路
 
-OKF の frontmatter が RAG のフィルタ・ランキング・コンテキスト組み立てに直結する流れを、実際のバンドルで示します。
+OKF の frontmatter が RAG のフィルタ・ランキング・コンテキスト組み立てに直結する流れを、資格取得・受験勉強の事例で示します。
 
 ```{mermaid}
-flowchart LR
-    Q["質問: 売上はいくら?"] --> F1["type で絞り込み: Metric + AttestedComputation"]
-    F1 --> F2["stale_after で鮮度フィルタ(期限切れ除外)"]
-    F2 --> F3["status: stable を優先"]
-    F3 --> R["参照を辿る: Metric → AttestedComputation"]
-    R --> C["コンテキスト: 定義 + 計算式 + 検証器"]
+flowchart TB
+    Q["質問: この資格、合格するには?"] --> F1["type で絞り込み: Metric + Playbook + AttestedComputation"]
+    F1 --> F2["stale_after で鮮度フィルタ<br>(旧シラバス・旧試験範囲を除外)"]
+    F2 --> F3["status: stable を優先<br>(公式ガイド・対策本を上位に)"]
+    F3 --> R["参照を辿る: Metric 合格ライン<br>→ Playbook 学習計画 → 計算演習"]
+    R --> C["コンテキスト: 合格基準 + 学習計画 + 復習手順"]
     C --> LLM["LLM が根拠つきで生成"]
 ```
 
-1. **型で絞り込み**: `type: Metric` と `type: AttestedComputation` を持つレコード群だけを候補にする。無関係な API 文書は最初から探索範囲に入らない(≈ 検索空間の縮小)
-2. **鮮度フィルタ**: `stale_after: 2026-12-31` を基準に、期限切れレコードを除外。RAG が「古い仕様」を回答に混ぜるリスクを、**検索段階**で防げる
-3. **信頼ランキング**: `status: stable`、`verified` を持つレコードを優先
-4. **参照を辿る(モード B)**: Metric の「計算定義は Attested Computation を参照」という関係を使い、定義 → SQL 本文 → `executor` / `attester` まで辿って根拠セットを完成
-5. **コンテキスト組み立て**: 辿って得た「定義 + 計算式 + 検証器」だけを LLM に渡す
+1. **型で絞り込み**: `type: Playbook`(学習計画・復習手順)・`type: Metric`(合格ライン)・`type: AttestedComputation`(計算演習)を持つレコードだけを候補にする。関係ない概念は最初から探索範囲に入らない(≈ 検索空間の縮小)
+2. **鮮度フィルタ**: `stale_after` を基準に、改訂前シラバス・旧試験範囲のレコードを除外。RAG が「古い試験対策」を回答に混ぜるリスクを、**検索段階**で防げる
+3. **信頼ランキング**: `status: stable`、`verified` を持つ公式ガイド・対策本のレコードを優先
+4. **参照を辿る(モード B)**: Metric の「合格ライン」→ Playbook の「学習計画」→ 苦手分野の Attested Computation「計算演習」という関係を辿り、根拠セットを完成
+5. **コンテキスト組み立て**: 辿って得た「合格基準 + 学習計画 + 復習手順」だけを LLM に渡す
 
 つまり **RAG の「どこを、どう絞り、何を渡すか」という設計判断の大半が、OKF の frontmatter から決まります。** これが本題のシナジーです。
 
