@@ -1,0 +1,104 @@
+---
+title: "4. Apple Notes をもっと育てる"
+description: macOS ユーザー向け。Apple「メモ」を OKF バンドルへ育てる手法の提案(実験的)。安全に扱うための必須ガードつき
+---
+
+# Apple Notes をもっと育てる
+
+macOS ユーザーなら誰でも、Apple「メモ」という**苗箱**を持っています。日々のアイデア、読書メモ、議事録、スクラップ — そこには「種」がたくさん眠っています。
+
+このページは、その種を okf-seedling の苗箱へ移植して **OKF バンドルとして育てる提案**です。
+
+## 位置づけ(重要)
+
+- **実験的・手法紹介です**。コア機能ではありません。実装する場合は必ず下記の「必須ガード」を守ってください
+- このツール(demo サイト・テンプレート)には importer は同梱していません。**仕組みの提案**として読んでください
+- 想定読者: **macOS を使っていて、Apple メモを「知識バンドル」に育てたい人**
+
+## なぜ「育てる」のか
+
+育苗箱の思想(→ [Vision](why-seedling.qmd))では、知識は放置せず**育てる**ものです。Apple メモはまさに:
+
+- 「種」: メモ1 件 = 1 つのアイデア/知識の芽
+- 「育つ」: OKF バンドル化 → frontmatter で飾りつけ → 検証 → 公開(RAG・エージェントへ渡せる)
+
+```{mermaid}
+flowchart LR
+    N["Apple メモ<br>(アイデア・議事録・スクラップ)"] --> E["抽出<br>AppleScript/JXA 中心"]
+    E --> G["ガード<br>専用フォルダ + 機密スキャン"]
+    G --> S["stamp-okf<br>OKF バンドル化"]
+    S --> V["validate-okf<br>リンターで健康診断"]
+    V --> P["育てて公開<br>HTML + 機械用バンドル"]
+```
+
+## 抽出の方法(macOS)
+
+### 主経路: AppleScript / JXA(推奨)
+
+**権限なしで全ノートにアクセスできます**(本機の調査で 8,255 ノート の name/body/日付/フォルダ/id 取得を確認)。`body` は HTML タグ混じりのため、プレーンテキストへ整形が必要です。
+
+```javascript
+// 例: JXA でメモを列挙する(概念)
+const Notes = Application("Notes");
+const items = Notes.notes().map((n) => ({
+  name: n.name(),
+  folder: n.container().name(),
+  html: n.body(),
+  modified: n.modificationDate(),
+}));
+JSON.stringify(items);
+```
+
+### 副経路: SQLite(高速だが best-effort)
+
+`~/Library/Group Containers/group.com.apple.notes/` の SQLite は**高速ですが**:
+
+- **Full Disk Access 未付与だと読めない**(Operation not permitted)
+- 本文(`ZICNOTEDATA.ZBODY`)は NSKeyedArchiver バイナリのため、**素直なテキスト抽出は困難**
+
+→ 「高速だが不確実」な副経路として扱い、**本文の信頼抽出は JXA を主**にします。
+
+| 経路 | 速度 | 本文の信頼性 | 権限 |
+|---|---|---|---|
+| AppleScript / JXA | 中 | **高い(整形が必要)** | 不要 |
+| SQLite 直読み | 速い | 低(ZBODY バイナリ) | Full Disk Access 必要 |
+
+## 必須ガード(これを外したらやらない)
+
+Apple メモには**秘密情報(API トークン、パスワード等)が混入します。これは実際に確認済みの事実**です。バンドル→コミット経路で機密が git に乗るリスクがあります。必ず次を行ってください。
+
+1. **専用フォルダのみ抽出**: 全ノートを抽出しない。たとえば `OKF 苗箱` フォルダの中だけを対象にする
+2. **機密スキャン必須**: 抽出した本文をトークン/キー/API らしき文字列で検査し、検出されたら**スキップ or 停止**(コミット前に必ず実施)
+3. **コミット対象の警告**: importer 実行前に「この内容は git に載ります」と表示する
+4. **型は明示指定**: OKF の 6 型は汎用メモ向けではないため、デフォルト `Playbook`、`--type` で明示指定する(無理に当てはめない)
+5. **差分ノイズに注意**: メモは頻繁に変わります。バンドル hash が毎回更新されるため、Playwright 学習パイプラインの差分ノイズになりがち
+
+## 育て方の実際(提案手順)
+
+```bash
+# 概念手順(実装する場合は importer がこの流れを担う)
+# 1) 専用フォルダ内のメモを JXA で列挙
+# 2) 機密スキャン -> 検出時はスキップ
+# 3) <okf-seedling の雛形> に frontmatter(type: Playbook)を付与
+# 4) okf/concepts/ に配置 -> validate-okf で検証
+```
+
+1. **専用フォルダを決める**(例: `OKF 苗箱` フォルダ)
+2. **JXA 抽出 → 本文を Markdown に整形**
+3. **機密スキャン → OKF frontmatter(type: Playbook)付与**
+4. `quarto render` でバンドル生成 → `node tools/validate-okf.mjs` で検証
+5. 育てたバンドルをデプロイ or 学習パイプラインへ
+
+## この提案の限界
+
+- **秘密情報リスク**が最大の課題です。ガードを厳格にしても、人間のミスはゼロにできません。「育てる」のは**自分専用の閉じた知識**にとどめ、公開する場合は自分で再確認してください
+- 本文抽出(JXA の HTML 整形)は macOS バージョンにより多少挙動が変わります
+- 型の相性(OKF 6 型 vs 汎用メモ)は、`type` の明示指定で折り合いをつける設計です
+
+## まとめ
+
+Apple メモ = あなたの苗箱。okf-seedling = それを育てるもう一つの苗箱。
+
+**「専用フォルダに絞り、機密をスキャンし、type を明示する」** — この 3 つを守れば、散らかったメモが検証済みの知識バンドルとして育ちます。
+
+続きは [1. Create a Bundle](01-create-bundle.qmd) から始めて、[4] の育苗箱で育てた苗を移植してください。
