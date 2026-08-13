@@ -10,6 +10,7 @@ website:
   title: "okf-seedling"
   site-url: "https://okf-seedling.pages.dev/"
   repo-url: "https://github.com/watanabe3tipapa/okf-seedling"
+  favicon: "assets/favicon-64.png"
   description: "OKF v0.2 準拠の知識バンドルを作成する Quarto テンプレートツール"
   navbar:
     background: dark
