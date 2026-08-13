@@ -38,8 +38,8 @@ website:
             text: 2. Concept Types
           - href: tutorial/03-deploy.qmd
             text: 3. Deploy
-          - href: tutorial/okf-rag.qmd
-            text: Synergy
+      - href: tutorial/okf-rag.qmd
+        text: Synergy
 
 format:
   html:
