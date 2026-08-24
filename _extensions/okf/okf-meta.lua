@@ -38,6 +38,7 @@ local schema = {
 }
 -- @@OKF_SCHEMA_END@@
 local META_FIELDS = schema.meta_fields or {}
+local OPTIONAL_FIELDS = schema.optional or {}
 local BY_TYPE = schema.by_type or {}
 
 local function esc(s)
@@ -236,14 +237,19 @@ function Pandoc(doc)
       seen[field] = true
     end
   end
-  -- also surface any present optional/custom fields not in the core list
-  for k, value in pairs(meta) do
-    if not seen[k] then
+  -- surface optional OKF fields registered in tools/okf-types.json
+  -- (title / description / sources). Keys not listed in the registry are
+  -- never rendered: Quarto injects internal metadata (engines, header-includes,
+  -- labels, theme, ...) into doc.meta and it must stay out of this block.
+  for _, field in ipairs(OPTIONAL_FIELDS) do
+    local value = meta[field]
+    if value ~= nil and not seen[field] then
       table.insert(rows, {
-        pandoc.RawBlock("html", "<dt>" .. esc(tostring(k)) .. "</dt>"),
+        pandoc.RawBlock("html", "<dt>" .. esc(field) .. "</dt>"),
         pandoc.RawBlock("html", "<dd>" .. esc(fmt(value)) .. "</dd>"),
       })
-      structured[tostring(k)] = norm(value)
+      structured[field] = norm(value)
+      seen[field] = true
     end
   end
 
