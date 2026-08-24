@@ -70,6 +70,148 @@ GitHub Pages と Cloudflare Pages に並行デプロイ。frontmatter は HTML �
 
 OKF(Open Knowledge Format)と RAG は競合ではなく、OKF バンドルが RAG の精度を左右する **RAG-ready な知識基盤**になる補完関係です。実バンドル例でシナジーを分解します。[解説を読む](tutorial/okf-rag.qmd)
 
+## 知識の頭出し(Peek)
+
+カセットテープを再生位置の先頭に戻す「頭出し」のように、**知識のいちばん頭をチラ見する**体験です。「たしかこんな概念があったはず…」といううろ覚えの記憶に、title・description・鮮度チップ・本文の一行がフックして、「ああ、そうだった」から一歩進んだ **新しい気づき** を取りに出します。
+
+OKF バンドルは「1 概念 1 ファイル + frontmatter」なので、概念そのものが頭出しの単位になります。下のカードはこのサイト自身のバンドル(`okf/concepts/*.md`)から `quarto render` 時に自動生成しています。クリックで本文の頭が展開され、詳細ページへ飛べます。
+
+::: {.callout-note}
+## 任意の LP にも貼れます
+
+このセクションはテンプレート同梱の `tools/gen-peek.mjs` が生成しており、`quarto use template` 派生のバンドルなら同じ手順で自分の LP に設置できます。[1. Create a Bundle](tutorial/01-create-bundle.qmd#peek-lp) を参照してください。
+:::
+
+<div class="peek-controls">
+<button id="peek-random" type="button" class="btn btn-outline-primary btn-sm">今日の頭出し</button>
+<span id="peek-status" class="peek-status" aria-live="polite"></span>
+</div>
+
+<div id="peek-cards" class="peek-grid"></div>
+<noscript><p class="text-muted">Peek カードの表示には JavaScript が必要です。バンドルの中身は <a href="concepts/metric.html">Concepts</a> から直接ご覧ください。</p></noscript>
+
+<!--PEEK_DATA-->
+
+<script>
+(function () {
+  var dataEl = document.getElementById("peek-data");
+  var grid = document.getElementById("peek-cards");
+  var btn = document.getElementById("peek-random");
+  var statusEl = document.getElementById("peek-status");
+  if (!dataEl || !grid) return;
+
+  var items;
+  try {
+    items = JSON.parse(dataEl.textContent);
+  } catch (e) {
+    items = [];
+  }
+  if (!items.length) {
+    var p = document.createElement("p");
+    p.className = "text-muted";
+    p.textContent = "バンドルに概念がありません(concepts/*.qmd を書いて quarto render)。";
+    grid.appendChild(p);
+    if (btn) btn.style.display = "none";
+    return;
+  }
+
+  function chipInfo(item) {
+    if (!item.staleAfter) return { label: item.status || "-", cls: "peek-chip-neutral" };
+    var stale = new Date(item.staleAfter.length === 10 ? item.staleAfter + "T23:59:59" : item.staleAfter);
+    var fresh = !isNaN(stale.getTime()) && stale.getTime() >= Date.now();
+    return fresh
+      ? { label: item.status || "-", cls: "peek-chip-ok" }
+      : { label: (item.status || "-") + " / 要更新", cls: "peek-chip-stale" };
+  }
+
+  function makeCard(item) {
+    var card = document.createElement("div");
+    card.className = "peek-card";
+    card.dataset.peekId = item.id;
+    card.setAttribute("role", "button");
+    card.setAttribute("tabindex", "0");
+    card.setAttribute("aria-expanded", "false");
+
+    var badge = document.createElement("span");
+    badge.className = "peek-badge";
+    badge.textContent = item.type || "";
+    card.appendChild(badge);
+
+    var chip = document.createElement("span");
+    var info = chipInfo(item);
+    chip.className = "peek-chip " + info.cls;
+    chip.textContent = info.label;
+    card.appendChild(chip);
+
+    var title = document.createElement("p");
+    title.className = "peek-title";
+    title.textContent = item.title || item.id;
+    card.appendChild(title);
+
+    var desc = document.createElement("p");
+    desc.className = "peek-desc";
+    desc.textContent = item.description || "";
+    card.appendChild(desc);
+
+    var head = document.createElement("div");
+    head.className = "peek-head";
+    head.textContent = item.head || "";
+    var link = document.createElement("a");
+    link.className = "peek-link";
+    link.href = item.url;
+    link.textContent = "開いて読む →";
+    head.appendChild(link);
+    card.appendChild(head);
+
+    function toggle() {
+      var open = card.classList.toggle("open");
+      card.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    card.addEventListener("click", function (ev) {
+      if (ev.target.closest("a")) return;
+      toggle();
+    });
+    card.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter" || ev.key === " ") {
+        ev.preventDefault();
+        toggle();
+      }
+    });
+    return card;
+  }
+
+  var seen = {};
+  items.forEach(function (it) {
+    grid.appendChild(makeCard(it));
+  });
+
+  if (btn && statusEl) {
+    btn.addEventListener("click", function () {
+      var pool = items.filter(function (it) { return !seen[it.id]; });
+      if (!pool.length) pool = items;
+      var pick = pool[Math.floor(Math.random() * pool.length)];
+      seen[pick.id] = true;
+      var card = grid.querySelector('[data-peek-id="' + pick.id + '"]');
+      Array.prototype.forEach.call(grid.querySelectorAll(".peek-card"), function (c) {
+        c.classList.remove("peek-spotlight");
+      });
+      if (card) {
+        void card.offsetWidth; // アニメーション再始動
+        card.classList.add("open", "peek-spotlight");
+        card.setAttribute("aria-expanded", "true");
+        card.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      statusEl.textContent =
+        "→ " + (pick.title || pick.id) + "(" + (pick.type || "") + ") " +
+        Object.keys(seen).length + "/" + items.length;
+      if (Object.keys(seen).length === items.length) {
+        statusEl.textContent += " — 全概念を頭出ししました";
+      }
+    });
+  }
+})();
+</script>
+
 ## まず読んでほしい
 
 OKF や知識バンドルが初めての方は、この順で読んでください。

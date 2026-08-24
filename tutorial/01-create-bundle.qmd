@@ -115,3 +115,39 @@ stale_after: 2026-12-31
 - **警告(成功のまま報告)**: `stale_after` の期限切れ、`title` / `description` の欠落、本文が空、未登録 type
 
 鮮度・発見可能性・学習可能性の観点で、保守性を下げるサインを早めに知らせてくれます。
+
+## Peek セクションを LP に設置する {#peek-lp}
+
+「知識の頭出し」はテンプレート同梱ツールとして誰のバンドルでも動きます。あなたの LP(通常は `index.qmd`)に Peek セクションを置くと、「うろ覚えの知識をチラ見して気づきを得る」入口になります。
+
+### 手順
+
+1. **`_quarto.yml`** に post-render と CSS を追加:
+
+   ```yaml
+   project:
+     post-render:
+       - node tools/stamp-okf.mjs
+       - node tools/gen-peek.mjs   # stamp-okf の後に実行
+
+   format:
+     html:
+       css:
+         - assets/grid.css         # 既存
+         - assets/peek.css
+   ```
+
+2. **LP(`index.qmd`)** に Peek セクションをコピー。必要なのは次の 4 点セットです(本リポジトリの `index.qmd` 「知識の頭出し」セクションからそのまま持ってこられます):
+
+   - `<div id="peek-cards" class="peek-grid"></div>` … カードの描画先
+   - `<!--PEEK_DATA-->` … データ注入ポイント(gen-peek が差し替えるプレースホルダ)
+   - セクション内の `<script>` … カード描画・「今日の頭出し」ボタンの vanilla JS
+   - `assets/peek.css`
+
+3. `quarto render` を実行 → `gen-peek.mjs` が `okf/concepts/*.md`(stamp-okf の生成物)を読み、type・title・description・status・`stale_after`・本文の頭を JSON 化して `_site/index.html` に注入します。
+
+### 仕組みと注意
+
+- **fetch を使わない** post-render 注入のため、`file://` で開いても動作し、描画時の非同期フラッシュがありません
+- `<!--PEEK_DATA-->` がないページでは gen-peek は警告を出して正常終了します(CI 非破壊)。Peek セクションを置かないバンドルでも追記の害はありません
+- カードの内容はバンドル `.md` が唯一の source です。`.qmd` を直すだけで Peek・HTML・バンドルの 3 系統が同時に更新されます

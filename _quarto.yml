@@ -5,6 +5,7 @@ project:
     - "*.qmd"
   post-render:
     - node tools/stamp-okf.mjs
+    - node tools/gen-peek.mjs
 
 website:
   title: "okf-seedling"
@@ -56,7 +57,9 @@ website:
 format:
   html:
     theme: cosmo
-    css: assets/grid.css
+    css:
+      - assets/grid.css
+      - assets/peek.css
     toc: true
     toc-depth: 3
     anchor-sections: true

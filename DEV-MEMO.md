@@ -243,3 +243,19 @@ okf-seedling/                        ← quarto use template 対象 (ルート=Q
 - 導線: `_quarto.yml` navbar 右端に「Editor」ボタン(right 新設)、Tutorial メニュー「4. Online Editor」、`index.qmd` に callout-tip + Get Started 直前ボタン
 - 未検証事項: エディタ深層リンクのクエリパラメータ仕様(`repo` / `file` / `ref`)は公式ドキュメントが確認できておらず、実 URL での動作要確認。合わなければ `editor-link.mjs` の `encodeURIComponent` 部分を修正
 - チュートリアル番号の繰り下げ: Apple Notes を 04 → **05** に変更(`git mv` ファイル名・title・メニュー)。Online Editor が 4 番になる
+
+## M13: 知識の頭出し(Peek)セクション(v0.4.0)
+
+- 設置目的の明文化: 「知識」の**頭出し(チラ見)**により、うろ覚えの知識にフックして新しい気づきを付与する。カセットテープの頭出しメタファー。OKF の「1 概念 1 ファイル + frontmatter」がそのまま頭出しの単位になる
+- 実装
+  - `tools/gen-peek.mjs`(新規, post-render): `okf/concepts/*.md`(stamp-okf 生成物)から type / title / description / status / stale_after / tags / 本文の頭(~120字)を抽出し JSON 化 → `_site/index.html` の `<!--PEEK_DATA-->` プレースホルダを `<script type="application/json" id="peek-data">` に置換
+  - `index.qmd`: 「知識の頭出し(Peek)」セクション(Synergy の後)。Peekカード(type バッジ + 鮮度チップ + title/description 2行clamp)+ クリックで本文頭を展開 + 「今日の頭出し」ボタン(未見を優先したランダム1枚スポットライト、n/m カウンタ)
+  - `assets/peek.css`: カードグリッド(auto-fill minmax 240px)・バッジ・チップ(ok/stale/neutral)・展開・パルスアニメーション
+  - `tutorial/01-create-bundle.qmd` に再利用手順(`#peek-lp`)、README バッジは v0.3.2 → v0.4.0
+- 決定事項
+  - **独立ページにはしない**(LP 内セクションに留める。navbar 7項目以上増やさない)
+  - **fetch 不使用の post-render 注入**: `file://` でも動作・非同期フラッシュなし。プレースホルダ未検出時は警告のみ exit 0(CI 非破壊)。注入ブロックへの再置換で冪等
+  - **`pipeline/knowledge/` は使わない**(gitignored のローカル成果物のため。バンドル `.md` が唯一の source)
+  - 再利用は `quarto use template` 派生に最初から同梱される `tools/gen-peek.mjs` + 手順ドキュメントで提供(利用者は `_quarto.yml` 2行 + セクションコピーのみ)
+- セキュリティ: カード DOM 構築は `textContent` のみ(XSS 回避)。JSON 注入時に `<` を `\u003c` エスケープ(`</script>` 突破防止)
+- 鮮度チップ: `stale_after >= now` なら ok 色、期限切れは「/ 要更新」表示、未設定は neutral
