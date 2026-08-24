@@ -3,6 +3,9 @@ project:
   output-dir: _site
   render:
     - "*.qmd"
+    # notes/ は秘密領域のため公開物(_site)に絶対に含めない
+    - "!notes/"
+    - "!notes/**"
   post-render:
     - node tools/stamp-okf.mjs
     - node tools/gen-peek.mjs

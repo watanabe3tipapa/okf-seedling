@@ -151,3 +151,13 @@ stale_after: 2026-12-31
 - **fetch を使わない** post-render 注入のため、`file://` で開いても動作し、描画時の非同期フラッシュがありません
 - `<!--PEEK_DATA-->` がないページでは gen-peek は警告を出して正常終了します(CI 非破壊)。Peek セクションを置かないバンドルでも追記の害はありません
 - カードの内容はバンドル `.md` が唯一の source です。`.qmd` を直すだけで Peek・HTML・バンドルの 3 系統が同時に更新されます
+
+## 秘密領域 notes/ {#secret-notes}
+
+ルート直下の `notes/` は **あなた専用のシークレット領域**です。git 管理外のため clone にも含まれず、公開サイトにも出ません。
+
+- `.gitignore` の `/notes/` により、コミット・push の対象になりません
+- `_quarto.yml` の render 除外(`!notes/`)により、`_site/`(公開物)に混入しません
+- 誤って `git add -f` 等で追跡した場合は `node tools/validate-okf.mjs` がエラーで検知します(解除は `git rm -r --cached notes`)
+
+メモ・下書き・個人的な調整ファイルなど、公開したくないものはここに置いてください。clone 直後はフォルダ自体が存在しないのが正常です(`mkdir notes` で作成できます)。

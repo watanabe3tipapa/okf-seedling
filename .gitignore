@@ -8,4 +8,7 @@ node_modules/
 # 学習成果物(ビルド毎に変化)はコミットしない
 pipeline/knowledge/
 
+# 秘密領域(ユーザー専用・git 管理・クローン対象外)
+/notes/
+
 **/*.quarto_ipynb

@@ -5,7 +5,7 @@
 okf-seedling is a Quarto template tool that grows your documents into **OKF (Open Knowledge Format) compliant knowledge bundles**, readable by both agents and humans.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-v0.4.0-blue.svg)](https://github.com/watanabe3tipapa/okf-seedling/releases)
+[![Version](https://img.shields.io/badge/version-v0.4.1-blue.svg)](https://github.com/watanabe3tipapa/okf-seedling/releases)
 [![OKF](https://img.shields.io/badge/OKF-v0.2-8b5cf6.svg)](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-live-blue.svg)](https://watanabe3tipapa.github.io/okf-seedling/)
 [![Cloudflare Pages](https://img.shields.io/badge/Cloudflare%20Pages-live-orange.svg)](https://okf-seedling.pages.dev/)

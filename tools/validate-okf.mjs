@@ -30,6 +30,7 @@
 //   2. add a ruleset under RULES for that version (defaults apply otherwise)
 
 import { readdir, readFile, mkdir } from "node:fs/promises";
+import { execSync } from "node:child_process";
 import { resolve, join, relative, basename, dirname, extname, sep } from "node:path";
 
 const ROOT = resolve(import.meta.dirname, "..");
@@ -164,11 +165,31 @@ async function readDeclaredVersion(yaml) {
 
 // ---------- main ----------
 
+// notes/ はローカル専用の秘密領域(.gitignore 対象)。誤って追跡されたら即エラーにする。
+function checkNotesUntracked() {
+  try {
+    const out = execSync("git ls-files -- notes/", { cwd: ROOT, encoding: "utf8" });
+    const tracked = out.split(/\r?\n/).filter(Boolean);
+    if (tracked.length > 0) {
+      console.error("notes/ validation FAILED:");
+      for (const f of tracked) console.error(`  - ${f} が git 追跡されています`);
+      console.error(
+        "notes/ はローカル専用のシークレット領域です。追跡を外すには:\n  git rm -r --cached notes",
+      );
+      process.exit(1);
+    }
+  } catch {
+    // git コマンド不在 / 非 git 環境(git ls-files が非ゼロ終了): 検査をスキップ(非破壊)
+  }
+}
+
 async function main() {
   if (SHOW_VERSIONS) {
     printVersions();
     return;
   }
+
+  checkNotesUntracked();
 
   await mkdir(BUNDLE_ROOT, { recursive: true });
   const files = await walk(BUNDLE_ROOT);

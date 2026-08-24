@@ -259,3 +259,15 @@ okf-seedling/                        ← quarto use template 対象 (ルート=Q
   - 再利用は `quarto use template` 派生に最初から同梱される `tools/gen-peek.mjs` + 手順ドキュメントで提供(利用者は `_quarto.yml` 2行 + セクションコピーのみ)
 - セキュリティ: カード DOM 構築は `textContent` のみ(XSS 回避)。JSON 注入時に `<` を `\u003c` エスケープ(`</script>` 突破防止)
 - 鮮度チップ: `stale_after >= now` なら ok 色、期限切れは「/ 要更新」表示、未設定は neutral
+
+## M14: 秘密領域 notes/(v0.4.1)
+
+- 目的: リポジトリルート直下に「クローンされないシークレット領域」を設け、ユーザーが自由に使える受け皿を作る。M8〜M10 で繰り返し浮上した「秘密情報の git 流出」懸念に対する安全側の設計
+- 実装
+  - `.gitignore` に `/notes/`(テンプレート同梱なので派生バンドルにも自動で効く)
+  - `_quarto.yml` render に `!notes/` `!notes/**`。**重要な落とし穴**: Quarto の `render: ["*.qmd"]` はサブディレクトリ再帰マッチ(concepts/・tutorial/ がレンダされる証拠)のため、除外しないと git 管理外でも `_site/` 公開物に載ってしまう
+  - `validate-okf.mjs` 冒頭で `git ls-files -- notes/` を検査 → 追跡ファイルがあればエラー終了(`git add -f` 事故の保険)。CI の Validate step でも自動的に効く。git 不在・非 git 環境はスキップ(非破壊)
+  - ローカルには注意書き付き `notes/README.md`(未追跡)。clone 先に notes/ 自体がないのは正常
+  - `tutorial/01-create-bundle.qmd` に「秘密領域 notes/」セクション(`#secret-notes`)
+- 版数: 0.4.0 → **0.4.1**(小規模な仕掛け追加のためユーザー指定でパッチ扱い)
+- 検証: check-ignore / `notes/_test.qmd` を置いてのレンダ遮断 / `git add -f` での FAIL→復旧 を実施
