@@ -108,6 +108,7 @@ okf-seedling/                        ← quarto use template 対象 (ルート=Q
 - GitHub Actions の `deploy-cloudflare-pages.yml` はシェルベース(`npx wrangler@4.120.1` を直接実行)に変更。シークレット `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` 未設定時は `::notice::` を出してジョブ成功のままスキップする
 - ※ `if:` 内での `secrets` 参照は GitHub Actions の validation で弾かれる(ジョブ生成 0 件で "workflow file issue")ため使用しない
 - **決定: Cloudflare は git 連携ビルドを停止し、GitHub Actions(`deploy-cloudflare-pages.yml`)に一本化**。シークレット設定後に初回デプロイ(プロジェクトは自動 `pages project create`)
+- **追記(2026-08-24)**: 上記「停止済み」だったが、実際には git 連携ビルド(Worker Builds)の接続が Cloudflare 側に残っており、push のたびに「The build token selected for this build has been deleted or rolled and cannot be used for this build」で失敗していた。**本番への影響なし**(正式経路は GH Actions → wrangler のみ。pages.dev への最新反映も確認済み)。失敗ビルドが公開を上書きすることはないが、放置すると将来トークンを修復した際に**別のビルド設定による二重デプロイ**のリスクがあるため、ダッシュボード Workers & Pages → `okf-seedling` → Settings → Builds で **Git 接続を切断**すること
 
 ## M5: Playwright 学習パイプライン
 
