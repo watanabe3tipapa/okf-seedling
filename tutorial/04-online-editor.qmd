@@ -1,0 +1,165 @@
+---
+title: "4. Online Editor で育てる"
+description: "ローカル環境なしで、ブラウザから OKF 概念ファイルを編集・コミットする"
+date: 2026-08-24
+categories:
+  - tutorial
+  - editor
+---
+
+# 4. Online Editor で育てる
+
+`okf-seedling` は Quarto テンプレートですが、**ローカルに Quarto を入れなくても**、ブラウザ上で概念ファイルを編集・保存できます。
+
+この章では [Quarto Editor PE](https://quarto-editor-pe.vercel.app/editor) を使い、GitHub 上の知識バンドルを直接育てる手順を解説します。
+
+## 前提条件
+
+| 項目 | 必要度 | 説明 |
+|---|---|---|
+| GitHub アカウント | 必須 | リポジトリの作成・編集に使用 |
+| Quarto Editor PE 認証 | 必須 | GitHub OAuth でリポジトリにアクセス |
+| `okf-seedling` テンプレート | 必須 | `quarto use template` または手動コピーで生成済みのリポジトリ |
+
+::: {.callout-note}
+## エディタが対応する操作
+
+Quarto Editor PE は GitHub リポジトリ内の `.qmd` ファイルを**直接読み書き**できます。編集後はコミットして即座に GitHub 上に反映されます。
+:::
+
+## ステップ 1: バンドルリポジトリを準備する
+
+まず、自分の GitHub アカウントに OKF バンドル用リポジトリを用意します。
+
+### 方法 A: `quarto use template` で生成（推奨）
+
+```bash
+quarto use template watanabe3tipapa/okf-seedling
+```
+
+生成されたディレクトリを自分の GitHub アカウントに push します。
+
+```bash
+cd my-knowledge-bundle
+git init
+git add .
+git commit -m "Initial commit from okf-seedling template"
+git branch -M main
+git remote add origin https://github.com/YOURNAME/my-knowledge-bundle.git
+git push -u origin main
+```
+
+### 方法 B: GitHub テンプレートから作成
+
+GitHub 上で `watanabe3tipapa/okf-seedling` を「Use this template」しても構いません。
+
+## ステップ 2: エディタでリポジトリを開く
+
+Quarto Editor PE にアクセスし、GitHub OAuth で認証します。
+
+[Quarto Editor PE を開く](https://quarto-editor-pe.vercel.app/editor){.btn .btn-primary target="_blank"}
+
+認証後、自分のリポジトリ `YOURNAME/my-knowledge-bundle` を選択し、`concepts/` ディレクトリ内の `.qmd` ファイルを開きます。
+
+## ステップ 3: 概念ファイルを編集する
+
+### 雛形から始める
+
+`concepts/` には 6 種の concept 雛形が置かれています。
+
+| ファイル | 型 | 用途 |
+|---|---|---|
+| `api-overview.qmd` | API Overview | API 全体の概要 |
+| `api-endpoint.qmd` | API Endpoint | 1 エンドポイントの仕様 |
+| `api-schema.qmd` | API Schema | 入出力の型定義 |
+| `playbook.qmd` | Playbook | 手順書・対処手順 |
+| `metric.qmd` | Metric | 指標の定義 |
+| `attested-computation.qmd` | Attested Computation | 検証可能な計算 |
+
+### 編集のポイント
+
+1. **frontmatter を先に埋める**: `title`, `description`, `type`, `status` などは冒頭の YAML ブロックに記述
+2. **1 ファイル 1 概念**: 1 つの `.qmd` に複数の概念を詰め込まない
+3. **型に応じた見出しを使う**: `tools/okf-types.json` で定義された推奨見出しに沿う
+
+編集例（`concepts/playbook.qmd`）:
+
+```markdown
+---
+title: "インシデント対応手順"
+description: "本番環境での異常検知時の対処フロー"
+type: Playbook
+status: stable
+generated: 2026-08-24
+---
+
+# インシデント対応手順
+
+## Summary
+
+本番環境でエラー率が 5% を超えた場合の対処手順。
+
+## Prerequisites
+
+- PagerDuty アクセス権
+- 本番ログ閲覧権限
+
+## Steps
+
+1. ダッシュボードでエラー詳細を確認
+2. 直近のデプロイ履歴を確認
+3. 必要に応じてロールバック
+
+## Verification
+
+- エラー率が 1% 未満に回復すること
+- 影響を受けたユーザー数を確認
+```
+
+## ステップ 4: コミットして保存
+
+エディタ上で保存（コミット）すると、変更が GitHub リポジトリに直接反映されます。
+
+```
+エディタ上で保存 → GitHub へコミット → GitHub Actions が自動レンダリング → GitHub Pages / Cloudflare Pages へデプロイ
+```
+
+## ステップ 5: バンドルを検証する
+
+コミット後、GitHub Actions のワークフローが自動的に `validate-okf.mjs` を実行します。
+
+検証結果はリポジトリの「Actions」タブで確認できます。
+
+::: {.callout-warning}
+## CI での検証失敗に注意
+
+エディタ上では見た目が正しくても、frontmatter の `type` が未指定や、必須フィールドが欠落していると CI が失敗します。`tools/okf-types.json` で各型の必須項目を確認してください。
+:::
+
+## 深層リンクで即座に編集を始める
+
+`tools/editor-link.mjs` を使うと、各 concept 雛形からエディタへの直接リンクを生成できます。
+
+```bash
+node tools/editor-link.mjs YOURNAME/my-knowledge-bundle
+```
+
+出力例:
+
+```
+https://quarto-editor-pe.vercel.app/editor?repo=YOURNAME%2Fmy-knowledge-bundle&file=concepts%2Fplaybook.qmd&ref=main
+```
+
+この URL をブックマークやチーム共有に利用できます。
+
+## まとめ
+
+| 操作 | ローカル | Online Editor |
+|---|---|---|
+| 雛形生成 | `quarto use template` | GitHub テンプレート |
+| 編集 | VS Code / RStudio | ブラウザ（Quarto Editor PE） |
+| 保存 | `git commit` | エディタ内保存 → GitHub コミット |
+| レンダリング | `quarto render` | GitHub Actions 自動実行 |
+| 検証 | `node tools/validate-okf.mjs` | CI 自動実行 |
+
+Online Editor を使えば、**どのデバイスからでも**知識バンドルを育てることができます。育苗箱は、ブラウザの中にも持ち運べます。

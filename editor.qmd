@@ -1,0 +1,40 @@
+---
+title: "育苗箱・オンライン編集室"
+description: "ブラウザ上で OKF 概念ファイルを直接編集・コミットする"
+---
+
+## オンライン編集室
+
+Quarto Editor PE を使い、ブラウザから OKF 概念ファイルを直接編集・コミットできます。GitHub OAuth で認証後、自分のバンドルリポジトリを選択してください。
+
+[Quarto Editor PE を開く](https://quarto-editor-pe.vercel.app/editor){.btn .btn-primary .btn-lg target="_blank"}
+
+### 使い方
+
+1. GitHub OAuth で認証
+2. 自分の `okf-seedling` 派生リポジトリを選択
+3. `concepts/*.qmd` を編集・コミット
+4. GitHub Actions が自動レンダリング・デプロイ
+
+### 概念雛形
+
+以下の雛形から編集を始められます。
+
+| 型 | ファイル |
+|---|---|
+| API Overview | `concepts/api-overview.qmd` |
+| API Endpoint | `concepts/api-endpoint.qmd` |
+| API Schema | `concepts/api-schema.qmd` |
+| Playbook | `concepts/playbook.qmd` |
+| Metric | `concepts/metric.qmd` |
+| Attested Computation | `concepts/attested-computation.qmd` |
+
+::: {.callout-note}
+## 注意
+
+- GitHub OAuth 認証が必要です
+- 編集対象は `.qmd` ファイルです
+- コミット後は CI 検証（`validate-okf.mjs`）が自動実行されます
+:::
+
+[チュートリアルを読む](tutorial/04-online-editor.qmd){.btn .btn-outline-primary}

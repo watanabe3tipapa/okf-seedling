@@ -232,3 +232,14 @@ okf-seedling/                        ← quarto use template 対象 (ルート=Q
 - 表示: README バッジ(Version)・`node tools/validate-okf.mjs --versions` の `tool:` 行
 - リリース時: `tools/tool-version.json` の `current` 更新 → README バッジ URL 更新 → `git tag vX.Y.Z` → push
 - 注意: ツール版と **OKF 仕様対応版(`tools/okf-version.json`)は別物**。仕様準拠 v0.2 の読者は OKF current が指す物を参照
+
+## M12: Quarto Editor PE 統合(オンライン編集)
+
+- 目的: ローカルに Quarto を入れなくても、ブラウザから OKF 概念ファイルを編集・コミットできる導線を用意([Quarto Editor PE](https://quarto-editor-pe.vercel.app/editor)、GitHub OAuth 対応)
+- 構成
+  - `editor.qmd`(ルート) … オンライン編集室ページ。**外部リンク案内版を採用**(iframe 埋め込みは HTTP ヘッダ上は可能 — `X-Frame-Options` / CSP `frame-ancestors` なし確認済み — だがランタイム挙動が未検証のため安全側に)
+  - `tutorial/04-online-editor.qmd` … ブラウザで育てるチュートリアル(手順・CI 検証の注意・深層リンク)
+  - `tools/editor-link.mjs` … concept 雛形への深層リンク生成(`node tools/editor-link.mjs <owner/repo> [ref]`)
+- 導線: `_quarto.yml` navbar 右端に「Editor」ボタン(right 新設)、Tutorial メニュー「4. Online Editor」、`index.qmd` に callout-tip + Get Started 直前ボタン
+- 未検証事項: エディタ深層リンクのクエリパラメータ仕様(`repo` / `file` / `ref`)は公式ドキュメントが確認できておらず、実 URL での動作要確認。合わなければ `editor-link.mjs` の `encodeURIComponent` 部分を修正
+- チュートリアル番号の繰り下げ: Apple Notes を 04 → **05** に変更(`git mv` ファイル名・title・メニュー)。Online Editor が 4 番になる

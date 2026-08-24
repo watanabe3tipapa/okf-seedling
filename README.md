@@ -43,6 +43,7 @@ OKF はデータ表現の規格、RAG は利用側の推論アーキテクチャ
 - concept 単位 (API / Playbook / Metric など) の設計 (1 ファイル = 1 概念)
 - レジストリ駆動の検証: `tools/okf-types.json` を基にスキーマ/検証を実行
 - 内蔵リンターで準拠(エラー)と品質(警告)を検出
+- オンライン編集: ブラウザから `.qmd` を編集・コミット (Quarto Editor PE 連携)
 - 任意の Playwright ベース学習パイプラインでレンダリング HTML から構造化 JSON を抽出
 
 リンターの検査例:
@@ -96,6 +97,20 @@ cd pipeline && npm install && npm run learn
 
 ---
 
+## オンライン編集（Quarto Editor PE）
+
+ローカルに Quarto を入れなくても、ブラウザから OKF 概念ファイルを編集・コミットできます。[Quarto Editor PE](https://quarto-editor-pe.vercel.app/editor) が GitHub OAuth でリポジトリに直接アクセスするため、エディタ上での保存がそのまま GitHub へのコミットになり、GitHub Actions が自動レンダリング・デプロイまで行います。
+
+- 公開サイトの[オンライン編集室](https://okf-seedling.pages.dev/editor.html)
+- 手順の詳細: [4. Online Editor で育てる](https://okf-seedling.pages.dev/tutorial/04-online-editor.html)
+- concept 雛形への深層リンクをローカルで生成:
+
+```bash
+node tools/editor-link.mjs YOURNAME/my-knowledge-bundle
+```
+
+---
+
 ## Concept 型（一覧）
 
 - API Overview — API 全体の概要
@@ -115,8 +130,9 @@ cd pipeline && npm install && npm run learn
 2. 1. Create a Bundle — 実際に作ってみる
 3. 2. Concept Types — 型の書き方
 4. 3. Deploy — 公開する
-5. OKF × RAG Synergy — 実バンドル例つきの解説
-6. Vision — 「育苗箱」に込めた思い
+5. 4. Online Editor — ブラウザで育てる
+6. OKF × RAG Synergy — 実バンドル例つきの解説
+7. Vision — 「育苗箱」に込めた思い
 
 （各ページへのリンクとチュートリアルは公開サイトにあります）
 

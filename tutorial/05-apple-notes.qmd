@@ -1,5 +1,5 @@
 ---
-title: "4. Apple Notes をもっと育てる"
+title: "5. Apple Notes をもっと育てる"
 description: macOS ユーザー向け。Apple「メモ」を OKF バンドルへ育てる具体的な手順書。ターミナルで実際に動くコマンドと必須ガードつき(実験的)
 ---
 

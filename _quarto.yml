@@ -41,12 +41,17 @@ website:
             text: 2. Concept Types
           - href: tutorial/03-deploy.qmd
             text: 3. Deploy
-          - href: tutorial/04-apple-notes.qmd
-            text: 4. Apple Notes を育てる
+          - href: tutorial/04-online-editor.qmd
+            text: 4. Online Editor
+          - href: tutorial/05-apple-notes.qmd
+            text: 5. Apple Notes を育てる
       - href: tutorial/okf-rag.qmd
         text: Synergy
       - href: tutorial/why-seedling.qmd
         text: Vision
+    right:
+      - href: editor.qmd
+        text: "Editor"
 
 format:
   html:

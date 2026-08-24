@@ -25,6 +25,12 @@ flowchart LR
     O --> V["validate-okf リンター<br>準拠 + 品質警告"]
 ```
 
+::: {.callout-tip}
+## ブラウザで試す
+
+ローカル環境なしで OKF 概念ファイルを編集・コミットできます。[Online Editor](editor.qmd) または [Quarto Editor PE](https://quarto-editor-pe.vercel.app/editor) を開いてください。
+:::
+
 - エージェントにも人間にも読める `.qmd` をソースに
 - `quarto use template` 一発でバンドル雛形を生成
 - レンダリングで **人間用HTML** と **機械用OKFバンドル** を二系統出力
@@ -86,6 +92,10 @@ OKF や知識バンドルが初めての方は、この順で読んでくださ�
 | [Attested Computation](concepts/attested-computation.qmd) | 検証可能な計算定義 |
 
 ## Get Started
+
+::: {.text-center .mb-3}
+[Online Editor で始める](editor.qmd){.btn .btn-primary .btn-lg role="button"}
+:::
 
 ```bash
 quarto use template watanabe3tipapa/okf-seedling

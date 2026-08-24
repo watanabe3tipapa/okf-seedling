@@ -55,6 +55,7 @@ This tool does not only "build" — it checks that things are **properly formed*
 - Registry-driven validation: `tools/okf-types.json` is the single source of truth and drives schema generation, required-frontmatter / provenance / heading checks, and link-resolution checks
 - Deploy in parallel to GitHub Pages and Cloudflare Pages
 - Optional Playwright-based learning pipeline that extracts HTML into structured JSON per concept
+- Online editing: author and commit `.qmd` concepts from the browser (Quarto Editor PE integration)
 
 ## Installation
 
@@ -97,6 +98,18 @@ Checks OKF conformance and warns on quality signals (freshness, missing fields).
 
 See [3. Deploy](https://watanabe3tipapa.github.io/okf-seedling/tutorial/03-deploy.html). For writing concepts, see [1. Create a Bundle](https://watanabe3tipapa.github.io/okf-seedling/tutorial/01-create-bundle.html).
 
+### Online editing (Quarto Editor PE)
+
+No local Quarto required — edit and commit OKF concept files straight from the browser. [Quarto Editor PE](https://quarto-editor-pe.vercel.app/editor) accesses your repository via GitHub OAuth, so saving in the editor commits to GitHub, and GitHub Actions renders and deploys automatically.
+
+- [Online editing room](https://okf-seedling.pages.dev/editor.html) on the public site
+- Step-by-step guide: [4. Grow bundles with the Online Editor](https://okf-seedling.pages.dev/tutorial/04-online-editor.html)
+- Generate deep links to the concept skeletons locally:
+
+```bash
+node tools/editor-link.mjs YOURNAME/my-knowledge-bundle
+```
+
 ### (Optional) Playwright learning pipeline
 
 Extract concept-level structured JSON from the rendered HTML.
@@ -124,8 +137,9 @@ Beginners: read **in this order** for the full picture.
 2. [1. Create a Bundle](https://watanabe3tipapa.github.io/okf-seedling/tutorial/01-create-bundle.html) — build one hands-on
 3. [2. Concept Types](https://watanabe3tipapa.github.io/okf-seedling/tutorial/02-concept-type.html) — how to write each type
 4. [3. Deploy](https://watanabe3tipapa.github.io/okf-seedling/tutorial/03-deploy.html) — publish it
-5. [OKF × RAG Synergy](https://watanabe3tipapa.github.io/okf-seedling/tutorial/okf-rag.html) — why it works for agents
-6. [Vision](https://watanabe3tipapa.github.io/okf-seedling/tutorial/why-seedling.html) — the thought behind "seedling"
+5. [4. Online Editor](https://okf-seedling.pages.dev/tutorial/04-online-editor.html) — grow bundles in the browser
+6. [OKF × RAG Synergy](https://watanabe3tipapa.github.io/okf-seedling/tutorial/okf-rag.html) — why it works for agents
+7. [Vision](https://watanabe3tipapa.github.io/okf-seedling/tutorial/why-seedling.html) — the thought behind "seedling"
 
 Development notes: [DEV-MEMO](DEV-MEMO.md).
 
