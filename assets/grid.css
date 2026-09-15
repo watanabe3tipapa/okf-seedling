@@ -36,3 +36,32 @@ body {
 .mermaid svg text {
   font-size: 1rem;
 }
+
+/* モバイル表示の安全策: テーブル・コード・セル出力をはみ出させない */
+.table,
+.table-responsive,
+.cell-output,
+pre,
+code {
+  max-width: 100%;
+}
+
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 640px) {
+  .table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+
+  pre:not(.mermaid) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    font-size: 0.875rem;
+  }
+}

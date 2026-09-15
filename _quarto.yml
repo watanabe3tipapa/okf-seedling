@@ -11,11 +11,11 @@ project:
     - node tools/gen-peek.mjs
 
 website:
-  title: "okf-seedling"
+  title: "OKF-seedling"
   site-url: "https://okf-seedling.pages.dev/"
   repo-url: "https://github.com/watanabe3tipapa/okf-seedling"
   favicon: "assets/favicon-64.png"
-  description: "OKF v0.2 準拠の知識バンドルを作成する Quarto テンプレートツール"
+  description: "OKF（Open Knowledge Format）v0.2 準拠の知識バンドルを作成する Quarto テンプレートツール"
   navbar:
     background: dark
     left:
