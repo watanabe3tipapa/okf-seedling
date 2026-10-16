@@ -1,0 +1,235 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "qmd から公開までのビルドワークフロー",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "human-path",
+        "label": "人間に届く道",
+        "focus": [
+          "edit",
+          "render",
+          "stamp",
+          "validate",
+          "deploy",
+          "human"
+        ],
+        "note": "qmd を書き、レンダリングと検査を通して公開ページとして人間に届く主経路。"
+      },
+      {
+        "id": "agent-path",
+        "label": "エージェントに届く道",
+        "focus": [
+          "edit",
+          "render",
+          "stamp",
+          "agent"
+        ],
+        "note": "同じソースから生成される okf/ バンドルが、RAG やエージェントの入口になる。"
+      },
+      {
+        "id": "warn-path",
+        "label": "警告が出たとき",
+        "focus": [
+          "validate",
+          "edit",
+          "render"
+        ],
+        "note": "準拠エラーや鮮度切れが出たときに止まり、書き直して再ビルドする戻り道。"
+      }
+    ]
+  },
+  "lanes": [
+    {
+      "id": "author",
+      "label": "執筆"
+    },
+    {
+      "id": "pipeline",
+      "label": "ビルド + 検査 + 公開"
+    },
+    {
+      "id": "consume",
+      "label": "利用側"
+    }
+  ],
+  "phases": [
+    {
+      "id": "write",
+      "label": "執筆",
+      "fromCol": 0,
+      "toCol": 0
+    },
+    {
+      "id": "build-verify",
+      "label": "ビルド + 検査",
+      "fromCol": 1,
+      "toCol": 3,
+      "variant": "emphasis"
+    },
+    {
+      "id": "publish-share",
+      "label": "公開 + 配布",
+      "fromCol": 4,
+      "toCol": 5,
+      "variant": "dashed"
+    }
+  ],
+  "mainPath": [
+    "edit",
+    "render",
+    "stamp",
+    "validate",
+    "deploy",
+    "human"
+  ],
+  "nodes": [
+    {
+      "id": "edit",
+      "lane": "author",
+      "col": 0,
+      "type": "frontend",
+      "label": ".qmd を書く",
+      "sublabel": "1 概念 1 ファイル",
+      "width": 132
+    },
+    {
+      "id": "render",
+      "lane": "pipeline",
+      "col": 1,
+      "type": "backend",
+      "label": "quarto render",
+      "sublabel": "拡張 + lua filter",
+      "tag": "単一ソース",
+      "width": 132
+    },
+    {
+      "id": "stamp",
+      "lane": "pipeline",
+      "col": 2,
+      "type": "database",
+      "label": "okf/ バンドル",
+      "sublabel": "stamp-okf.mjs",
+      "tag": "post-render",
+      "width": 132
+    },
+    {
+      "id": "validate",
+      "lane": "pipeline",
+      "col": 3,
+      "type": "security",
+      "label": "validate-okf",
+      "sublabel": "準拠 + 鮮度の警告",
+      "tag": "CI でも実行",
+      "width": 132
+    },
+    {
+      "id": "deploy",
+      "lane": "pipeline",
+      "col": 4,
+      "type": "cloud",
+      "label": "デプロイ",
+      "sublabel": "GitHub / Cloudflare Pages",
+      "width": 132
+    },
+    {
+      "id": "agent",
+      "lane": "consume",
+      "col": 2,
+      "type": "external",
+      "label": "エージェント / RAG",
+      "sublabel": "frontmatter を先に読む",
+      "width": 132
+    },
+    {
+      "id": "human",
+      "lane": "consume",
+      "col": 5,
+      "type": "external",
+      "label": "人間の読者",
+      "sublabel": "_site/ の HTML",
+      "width": 132
+    }
+  ],
+  "edges": [
+    {
+      "id": "write-source",
+      "from": "edit",
+      "to": "render",
+      "label": "qmd を保存",
+      "variant": "emphasis"
+    },
+    {
+      "id": "stamp-bundle",
+      "from": "render",
+      "to": "stamp",
+      "label": "post-render フック"
+    },
+    {
+      "id": "validate-bundle",
+      "from": "stamp",
+      "to": "validate",
+      "label": "バンドルを検査"
+    },
+    {
+      "id": "publish-site",
+      "from": "validate",
+      "to": "deploy",
+      "label": "準拠 OK",
+      "variant": "emphasis"
+    },
+    {
+      "id": "serve-human",
+      "from": "deploy",
+      "to": "human",
+      "label": "公開ページ"
+    },
+    {
+      "id": "read-bundle",
+      "from": "stamp",
+      "to": "agent",
+      "label": "frontmatter で採用判断",
+      "variant": "dashed",
+      "role": "branch"
+    },
+    {
+      "id": "repair-source",
+      "from": "validate",
+      "to": "edit",
+      "label": "エラー / 警告は修正",
+      "variant": "security",
+      "role": "error"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "1 ソース・2 系統",
+      "items": [
+        "qmd を書けば HTML と okf/ バンドルが同じソースから出る",
+        "post-render の stamp-okf.mjs が okf/ を更新する",
+        "人間もエージェントも同じソースを読む"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "緑になるまで止める",
+      "items": [
+        "validate-okf が準拠・鮮度・内部リンクを検査する",
+        "準拠エラーは失敗、鮮度切れは修正対象の警告",
+        "CI でも同じスクリプトを回せる"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "frontmatter が信頼信号",
+      "items": [
+        "sources / generated / verified / stale_after / status",
+        "計算の正規性は Attested Computation 型が担う",
+        "エージェントは本文より先に frontmatter を見る"
+      ]
+    }
+  ]
+}

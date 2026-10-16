@@ -291,3 +291,24 @@ okf-seedling/                        ← quarto use template 対象 (ルート=Q
   - 知覚的な見た目レビュー(人手/画像レビュー)は未実施。機械検証は validate + visual-check の範囲
   - スペックを編集したら **必ず validate → deliver → visual-check を通す**(validate 通過で凍結、編集したら再検証)
 - 版数: 0.4.2 → **0.4.3**
+
+## M16: 対話型ビルドワークフロー図 + mermaid サブグラフ可読性改善(v0.4.3 据え置き)
+
+- 目的: 全体像に加え、`.qmd` 執筆からビルド・検査・公開・配布までの**工程**を対話的に辿れる図を追加し、LP の「2 種類のバンドル」mermaid 図の濃い背景を解消する
+- 実装
+  - `assets/archify/bundle-pipeline.json` … Archify(workflow)スペック。3 レーン(執筆 / ビルド+検査+公開 / 利用側) / 7 ノード / 7 エッジ / 3 カード / 3 views。戻り道(validate → edit)は return edge で表現
+  - `assets/archify/bundle-pipeline.html` … 単体 HTML 成果物。showcase validate 9/9・visual-check pass(1440x900 svg 1062x524 / 1920x1080 svg 1329x656、scrollHeight == innerHeight)
+  - `index.qmd`「アーキテクチャ図(対話型)」セクション → 2 枚のボタン(全体像 / ビルドワークフロー)に拡張
+  - `_quarto.yml` `project.resources` に `bundle-pipeline.html` を追加
+  - `README.md` / `README_en.md` の主な特徴/Features に 2 枚の対話型図を追記
+  - `assets/grid.css`: mermaid の **subgraph(cluster)を薄地化**(fill `#eef4fb` / stroke `#9db8d4` / タイトル `#14406b`)し、濃いグレー地のラベルを解消
+- 検証
+  - Archify workflow validate(showcase): 9/9 checks・composition errors 0 / warnings 0
+  - 初回 6 レーン案は **WIDE_RATIO 制約**で 1440x900 時に縦 1646px あふれ(リーダー幅の自動縮小は viewBox アスペクト比 ≥ 1.55 のときだけ有効)→ 3 レーン化 + 冗長な「修正」ノード削除 + `route: return-left` ピン除去(自動ルーティングに委譲)で viewBox 1082x534(比 2.03)に収束
+  - mermaid 可読性: 変更前 cluster 地色 `rgb(98,109,120)` に青ラベル `#2780e3` で **コントラスト 1.33:1** → 変更後 `#14406b` on `#eef4fb` で **9.60:1**(WCAG AAA)。ノード本文色 `#333` は据え置き
+- 注意
+  - mermaid は `pre.mermaid` を **`svg.mermaid-js` に置換**するため `.mermaid svg` セレクタは一致しない(既存の `.mermaid svg` 系ルールは実質無効)
+  - テーマ CSS は SVG 内に **ID スコープ**(`#mermaid-N .cluster rect{fill:var(--mermaid-fg-color--lightest)}`)で埋め込まれるため、上書きには `svg.mermaid-js` セレクタ + `!important` が必要
+  - `subgraph` を使うページは `index.qmd` のみ(サイト全体セレクタだが影響範囲はこの図だけ)
+  - Viewer の UI クロームは英語のまま。知覚的な見た目レビューは未実施
+- 版数: 0.4.3 据え置き(利用者指示によりバンプなし)

@@ -37,6 +37,19 @@ body {
   font-size: 1rem;
 }
 
+/* mermaid subgraph (cluster): 既定は濃いグレー地に青ラベルで読みにくいため薄地に調整
+   （mermaid は pre.mermaid を svg.mermaid-js に置換するため svg.mermaid-js を指定する） */
+svg.mermaid-js .cluster rect {
+  fill: #eef4fb !important;
+  stroke: #9db8d4 !important;
+}
+
+svg.mermaid-js .cluster span,
+svg.mermaid-js .cluster-label .nodeLabel {
+  color: #14406b !important;
+  fill: #14406b !important;
+}
+
 /* モバイル表示の安全策: テーブル・コード・セル出力をはみ出させない */
 .table,
 .table-responsive,

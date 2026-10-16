@@ -56,6 +56,7 @@ This tool does not only "build" — it checks that things are **properly formed*
 - Deploy in parallel to GitHub Pages and Cloudflare Pages
 - Optional Playwright-based learning pipeline that extracts HTML into structured JSON per concept
 - Online editing: author and commit `.qmd` concepts from the browser (Quarto Editor PE integration)
+- Two interactive diagrams included: a system-overview architecture map and a build-workflow diagram, both linked from the LP as self-contained HTML
 
 ## Installation
 

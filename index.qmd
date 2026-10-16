@@ -58,10 +58,13 @@ flowchart LR
 
 ## アーキテクチャ図（対話型）
 
-上記の流れを、構成要素・データ流れ・ガイドビュー付きの **対話型アーキテクチャ図** としてまとめました。
-コンポーネントの選択、ルート探索、テーマ切替、印刷・エクスポートに対応しています。
+上記の流れを、2 枚の **対話型ダイアグラム** としてまとめました。
+どちらもコンポーネントの選択、ルート探索、テーマ切替、印刷・エクスポートに対応しています。
 
-[アーキテクチャ図を開く](assets/archify/tool-overview.html){.btn .btn-outline-primary role="button" target="_blank" rel="noopener"}
+- **全体像（アーキテクチャ図）** — 作者・エディタ・レンダリング・バンドル・リンター・デプロイの構成要素と関係
+- **ビルドワークフロー図** — .qmd を書いてから公開・配布までの工程と、品質ゲートで止まる戻り道
+
+[全体像（アーキテクチャ図）を開く](assets/archify/tool-overview.html){.btn .btn-outline-primary role="button" target="_blank" rel="noopener"} [ビルドワークフロー図を開く](assets/archify/bundle-pipeline.html){.btn .btn-outline-primary role="button" target="_blank" rel="noopener"}
 
 ## OKF バンドルとは
 
