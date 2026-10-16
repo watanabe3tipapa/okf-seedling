@@ -272,3 +272,22 @@ okf-seedling/                        ← quarto use template 対象 (ルート=Q
   - `tutorial/01-create-bundle.qmd` に「秘密領域 notes/」セクション(`#secret-notes`)
 - 版数: 0.4.0 → **0.4.1**(小規模な仕掛け追加のためユーザー指定でパッチ扱い)
 - 検証: check-ignore / `notes/_test.qmd` を置いてのレンダ遮断 / `git add -f` での FAIL→復旧 を実施
+
+## M15: 対話型アーキテクチャ図(Archify)(v0.4.3)
+
+- 目的: LP の静的な mermaid フローに加え、ツール全体像を**対話的に**辿れる図を用意する(コンポーネント選択・ルート探索・ガイドビュー)
+- 実装
+  - `assets/archify/tool-overview.json` … Archify(architecture)スペック。10 コンポーネント / 10 リレーション / 3 カード / guided views(human-path・agent-path)。`meta.repository` で各ノードから該当 source へリンク
+  - `assets/archify/tool-overview.html` … 単体 HTML 成果物(ダーク/ライト、ガイド、ルート探索、印刷・エクスポート)。派生バンドルでもそのまま使える自己完結ファイル
+  - `index.qmd`「アーキテクチャ図(対話型)」セクション → 別タブで開くボタン
+  - `_quarto.yml` `project.resources` に HTML を追加(`_site` へコピー。未指定だと Quarto は素の HTML を公開物に含めない)
+  - `.gitignore` に `assets/archify/*.visual-check.*`(再生成可能な検証 sidecar はコミットしない。スペック + HTML のみ追跡)
+- 検証
+  - Archify showcase validate: 9/9 checks・composition errors 0 / warnings 0
+  - 初回 visual-check は **1440x900 で縦 1130px あふれ**(カード 4 枚が 960px リーダー幅で 3+1 の 2 行に折り返し)→ カード 4→3(品質ゲートをパイプラインカードへ統合)+ Y 座標圧縮(150/300/440/590 → 130/270/390/510)で解消
+  - 再検証: validate 通過 → deliver → visual-check pass(1440x900 / 1600x1000 / 1920x1080 / 2048x1320、overflow なし)
+- 注意
+  - Viewer の UI クロームは英語のまま(日本語ロケール未対応)。図中の文言は日本語
+  - 知覚的な見た目レビュー(人手/画像レビュー)は未実施。機械検証は validate + visual-check の範囲
+  - スペックを編集したら **必ず validate → deliver → visual-check を通す**(validate 通過で凍結、編集したら再検証)
+- 版数: 0.4.2 → **0.4.3**
