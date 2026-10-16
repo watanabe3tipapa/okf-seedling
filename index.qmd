@@ -3,7 +3,7 @@ description: OKF（Open Knowledge Format）v0.2 準拠の知識バンドルを�
 ---
 
 ::: {.eyecatch}
-![](assets/logo_okf-seedling.jpg)
+![OKF-seedling ロゴ](assets/logo_okf-seedling.jpg)
 :::
 
 # エージェントにも人間にも読める知識バンドルを作る
@@ -13,20 +13,20 @@ description: OKF（Open Knowledge Format）v0.2 準拠の知識バンドルを�
 LLM やエージェントに知識を読ませたいのに、検索がズレて回答がハズレる — それは文章が悪いのではなく、**知識が「形式」に沿って整理されていない**からです。
 
 - **Why**: 人間向けの文章のままでは、エージェントは概念の区切り・メタ情報・鮮度を正しく読めない
-- **What**: OKF（Open Knowledge Format）は知識を「1 概念 1 ファイル + フロントマター」に構造化する形式
+- **What**: OKF（Open Knowledge Format）は知識を「1 概念 1 ファイル + frontmatter」に構造化する形式
 - **How**: `.qmd` を書くだけで、**人間用 HTML** と **機械用 OKF バンドル**、さらに**リンターチェック**までが同時に生まれる
 
 :::{.text-center .mt-4 .mb-4}
-[オンラインで試す](editor.qmd){.btn .btn-primary .btn-lg role="button"}
+[Online Editor で試す](editor.qmd){.btn .btn-primary .btn-lg role="button"}
 [テンプレートを入手（quarto use template）](#quick-start){.btn .btn-outline-primary .btn-lg role="button"}
-[ドキュメントを読む](#まず読んでほしい){.btn .btn-link role="button"}
+[読み始める順番を見る](#まず読んでほしい){.btn .btn-link role="button"}
 :::
 
 ## まず読んでほしい
 
 OKF や知識バンドルが初めての方は、この順で読んでください。
 
-1. [0. What is OKF](tutorial/00-what-is-okf.qmd) — OKF・バンドル・用語の基礎(10 分)
+1. [0. What is OKF](tutorial/00-what-is-okf.qmd) — OKF・バンドル・用語の基礎（10 分）
 2. [1. Create a Bundle](tutorial/01-create-bundle.qmd) — 実際に作ってみる
 3. [2. Concept Types](tutorial/02-concept-type.qmd) — 6 種の型の書き方
 4. [3. Deploy](tutorial/03-deploy.qmd) — 公開する
@@ -34,11 +34,15 @@ OKF や知識バンドルが初めての方は、この順で読んでくださ�
 
 ```{mermaid}
 flowchart LR
-    Q["concepts/*.qmd<br>書く(1 概念 1 ファイル)"] --> L["quarto render"]
+    Q["concepts/*.qmd<br>書く（1 概念 1 ファイル）"] --> L["quarto render"]
     L --> H["_site/<br>人間用 HTML"]
     L --> O["okf/<br>機械用 OKF バンドル"]
     O --> V["validate-okf リンター<br>準拠 + 品質警告"]
 ```
+
+<noscript>
+  <p class="text-muted">図の流れ: <code>concepts/*.qmd</code> を書く → <code>quarto render</code> → 人間用 HTML（<code>_site/</code>）と機械用 OKF バンドル（<code>okf/</code>）を同時に生成 → <code>node tools/validate-okf.mjs</code> で準拠チェックと品質警告を実行。</p>
+</noscript>
 
 ::: {.callout-tip}
 ## ブラウザで試す
@@ -64,7 +68,7 @@ flowchart LR
 
 ## OKF v0.2 と信頼信号
 
-**Open Knowledge Format v0.2** は、Google Cloud が 2026 年 7 月に公開した、AI エージェント間で知識を安全に共有・交換するためのオープン仕様です。v0.1 の「Markdown + YAML frontmatter」という最小構成を継承しつつ、v0.2 では **5 つの trust signal（信頼信号）** を frontmatter に追加しました。
+**Open Knowledge Format v0.2** は、Google Cloud が 2026 年 7 月に公開した、AI エージェント間で知識を安全に共有・交換するためのオープン仕様です。v0.1 の「Markdown + YAML frontmatter」という最小構成を継承しつつ、v0.2 ではエージェントが採用可否を判断するための **5 つの trust signals（信頼信号）** を frontmatter で示せるようにしました。
 
 ::: {.callout-note}
 ## 出典
@@ -74,41 +78,45 @@ flowchart LR
 
 ### 2 種類のバンドル
 
-OKF では知識のまとまりを「**知見バンドル**」と「**情報バンドル**」の 2 つに区別します。
+OKF では知識のまとまりを「**知識バンドル**」と「**情報バンドル**」の 2 つに区別します（OKF SPEC では Knowledge Bundle と呼ばれるもので、このサイトでは知識バンドルと呼びます）。
 
-- **知見バンドル（Curated Knowledge Bundle）** — 人間やエージェントがキュレートした「知識」の集まり。Concept Documents(.md)＋YAML frontmatter＋Markdown body（Schema / Examples / Citations / Prose）＋`index.md` / `log.md` で構成され、ここが okf-seedling の出力対象です
+- **知識バンドル（Curated Knowledge Bundle）** — 人間やエージェントがキュレートした「知識」の集まり。Concept Documents(.md)＋YAML frontmatter＋Markdown body（Schema / Examples / Citations / Prose）＋`index.md` / `log.md` で構成され、ここが okf-seedling の出力対象です
 - **情報バンドル（Information / Data Bundle）** — キュレート前の「生データ」や外部情報源。Wiki / Confluence、BigQuery などの DB スキーマ、API 仕様書、生データ・ログ、ポリシー・標準規格を含みます
 
 ```{mermaid}
 flowchart LR
-    subgraph CURATED["知見バンドル<br>(Curated Knowledge Bundle)"]
+    subgraph CURATED["知識バンドル<br>(Curated Knowledge Bundle)"]
         C["concepts/*.md<br>frontmatter + body"]
     end
-    subgraph SIGNALS["OKF v0.2 Trust Signals<br>(信頼の層)"]
-        S["sources / generated / verified<br>stale_after / status / attested"]
+    subgraph SIGNALS["OKF v0.2 Trust Signals<br>（信頼の層）"]
+        S["sources / generated / verified<br>stale_after / status<br>+ Attested Computation"]
     end
     subgraph RAW["情報バンドル<br>(Information / Data Bundle)"]
         I["Wiki / DB スキーマ<br>API 仕様書 / ログ / 標準規格"]
     end
-    C -- "references(参照)" --> I
+    C -- "references（参照）" --> I
     S -. "信頼性の証跡" .-> C
 ```
 
-### 5 つの信頼信号
+<noscript>
+  <p class="text-muted">図の関係: 知識バンドル（<code>concepts/*.md</code>）が情報バンドル（Wiki / DB スキーマ / API 仕様書 / ログ / 標準規格）を <strong>references</strong> で参照し、OKF v0.2 の Trust Signals が知識バンドルに<strong>信頼性の証跡</strong>を与えます。</p>
+</noscript>
 
-エージェント（知識の消費者）が知識を採用する前に判断すべき 5 つの問いです。
+### 5 つの問いと信頼メタデータ
 
-| # | 問い | frontmatter フィールド |
+エージェント（知識の消費者）が知識を採用する前に判断すべき 5 つの問いです。問い 1〜4 は frontmatter フィールド（`sources` / `generated` / `verified` / `stale_after` / `status` の 5 つ）で答え、問い 5（計算証明）は **Attested Computation 概念型** の frontmatter（`runtime` / `executor` / `attester`）で示します。
+
+| # | 問い | 答える場所 |
 |---|---|---|
 | 1 | 何から作られたか？ | `sources`（出典） |
 | 2 | どれだけ信頼できるか？ | `generated` / `verified`（生成者・検証者） |
 | 3 | まだ正しいか？ | `stale_after`（鮮度期限） |
 | 4 | 現在のバージョンか？ | `status`（draft → stable → deprecated） |
-| 5 | 正規の方法で計算されたか？ | Attested Computation（計算証明・レシート） |
+| 5 | 正規の方法で計算されたか？ | Attested Computation 概念型（`runtime` / `executor` / `attester`） |
 
 ### 相関の本質
 
-- 知見バンドルは情報バンドルを **参照（references）** する
+- 知識バンドルは情報バンドルを **参照（references）** する
 - OKF v0.2 の trust signals がその参照に **信頼性の証跡** を与える
 - 信頼性は「スコア」ではなく **観測可能な事実** として記録される
 - これにより、エージェントは本文を読む前に frontmatter だけで **採用/棄却の判断** ができる
@@ -117,26 +125,26 @@ flowchart LR
 
 ::: {.g-col-6 .g-col-md-4 .card}
 ## Create
-`quarto use template watanabe3tipapa/okf-seedling` で新しい知識バンドルを生成。[バンドル生成の手順を見る](tutorial/01-create-bundle.qmd)
+`quarto use template watanabe3tipapa/okf-seedling` でバンドルの雛形を生成します。`concepts/*.qmd`・チュートリアル・検証スクリプトが一度に手に入り、続く `quarto render` で OKF バンドルまで作れます。[1. Create a Bundle の手順を見る](tutorial/01-create-bundle.qmd)
 :::
 
 ::: {.g-col-6 .g-col-md-4 .card}
 ## Author
-6 種の concept 型(API / Playbook / Metric / Attested Computation)を type レジストリで拡張可能。[concept 型ごとの書き方を見る](tutorial/02-concept-type.qmd)
+6 種の concept 型（API Overview / API Endpoint / API Schema / Playbook / Metric / Attested Computation）を type レジストリで拡張可能。1 概念 1 ファイルに `type` と `title` を書けば執筆が始まり、frontmatter がそのまま機械可読なメタデータになります。[2. Concept Types の書き方を見る](tutorial/02-concept-type.qmd)
 :::
 
 ::: {.g-col-6 .g-col-md-4 .card}
 ## Deploy
-GitHub Pages と Cloudflare Pages に並行デプロイ。frontmatter は HTML にも出力され、Playwright による知識蓄積にも対応。[デプロイ手順を見る](tutorial/03-deploy.qmd)
+GitHub Pages と Cloudflare Pages に並行デプロイ。`quarto render` の出力を公開するだけで、人間用 HTML と `okf/` バンドルの両方が配信されます。frontmatter は HTML にも出力され、Playwright による知識蓄積にも対応。[3. Deploy の手順を見る](tutorial/03-deploy.qmd)
 :::
 
 :::
 
 ## OKF × RAG Synergy
 
-OKF（Open Knowledge Format）と RAG は競合ではなく、OKF バンドルが RAG の精度を左右する **RAG-ready な知識基盤**になる補完関係です。実バンドル例でシナジーを分解します。[詳細を読む](tutorial/okf-rag.qmd)
+OKF と RAG は競合ではなく、OKF バンドルが RAG の精度を左右する **RAG-ready な知識基盤**になる補完関係です。実バンドル例でシナジーを分解します。[OKF × RAG Synergy の記事を読む](tutorial/okf-rag.qmd)
 
-## 知識の頭出し(Peek)
+## 知識の頭出し（Peek）
 
 カセットテープを再生位置の先頭に戻す「頭出し」のように、**知識のいちばん頭をチラ見する**体験です。「たしかこんな概念があったはず…」といううろ覚えの記憶に、title・description・鮮度チップ・本文の一行がフックして、「ああ、そうだった」から一歩進んだ **新しい気づき** を取りに出します。
 
@@ -145,7 +153,7 @@ OKF バンドルは「1 概念 1 ファイル + frontmatter」なので、概念
 ::: {.callout-note}
 ## 任意の LP にも貼れます
 
-このセクションはテンプレート同梱の `tools/gen-peek.mjs` が生成しており、`quarto use template` 派生のバンドルなら同じ手順で自分の LP に設置できます。[1. Create a Bundle](tutorial/01-create-bundle.qmd#peek-lp) を参照してください。
+このセクションはテンプレート同梱の `tools/gen-peek.mjs` が生成しており、`quarto use template` 派生のバンドルなら同じ手順で自分の LP に設置できます。[『1. Create a Bundle』の Peek 節](tutorial/01-create-bundle.qmd#peek-lp) を参照してください。
 :::
 
 <div class="peek-controls">
@@ -193,7 +201,7 @@ OKF バンドルは「1 概念 1 ファイル + frontmatter」なので、概念
   if (!items.length) {
     var p = document.createElement("p");
     p.className = "text-muted";
-    p.textContent = "バンドルに概念がありません(concepts/*.qmd を書いて quarto render)。";
+    p.textContent = "バンドルに概念がありません（concepts/*.qmd を書いて quarto render）。";
     grid.appendChild(p);
     if (btn) btn.style.display = "none";
     return;
@@ -300,12 +308,12 @@ OKF バンドルは「1 概念 1 ファイル + frontmatter」なので、概念
 
 | Type | 説明 | 選び方の目安 |
 |------|------|------|
-| [API Overview](concepts/api-overview.qmd) | API 全体の概要（認証・バージョン・エラー） | API の設計方針や全体像を説明したい（ここから読むのがおすすめ） |
-| [API Endpoint](concepts/api-endpoint.qmd) | 1 エンドポイントの仕様 | 「GET /users」のような個別の API を 1 本ずつ定義したい |
-| [API Schema](concepts/api-schema.qmd) | 入出力の型・JSON スキーマ | リクエスト/レスポンスの形を正確に機械へ伝えたい |
-| [Playbook](concepts/playbook.qmd) | 手順書・対処手順 | 「エラーが起きたらどうするか」のような手順を構造化したい |
-| [Metric](concepts/metric.qmd) | 指標の定義 | 計測値の定義・単元・鮮度を機械に解釈させたい |
-| [Attested Computation](concepts/attested-computation.qmd) | 検証可能な計算定義 | 計算ロジックを再実行可能な形で記録したい |
+| [API Overview](concepts/api-overview.qmd) | API 全体の概要（認証・バージョン・エラー） | API の設計方針や全体像を 1 枚で説明したい。例: 認証方式・バージョン戦略・共通エラーをまとめ、各エンドポイントの起点にしたい |
+| [API Endpoint](concepts/api-endpoint.qmd) | 1 エンドポイントの仕様 | 個別のエンドポイントを 1 本ずつ定義したい。例: `GET /users` のリクエスト/レスポンス/エラーを 1 ファイルで書く |
+| [API Schema](concepts/api-schema.qmd) | 入出力の型・JSON スキーマ | データの形を機械に正確に伝えたい。例: `users` オブジェクトの JSON スキーマとカラム型を単一の真実として持つ |
+| [Playbook](concepts/playbook.qmd) | 手順書・対処手順 | 手順や判断を構造化したい。例: データ鮮度アラートを受け取ったときの triage 手順 |
+| [Metric](concepts/metric.qmd) | 指標の定義 | 指標の定義・単元・鮮度を機械に解釈させたい。例: 売上総利益率（gross margin）の定義と更新周期 |
+| [Attested Computation](concepts/attested-computation.qmd) | 検証可能な計算定義 | 計算値が正規の方法で計算されたかを検証したい。例: 売上の集計 SQL を executor / attester 付きで記録し、再実行して照合する |
 
 ## Quick Start
 
@@ -332,3 +340,9 @@ quarto render
 ```bash
 node tools/validate-okf.mjs
 ```
+
+::: {.callout-note}
+## このステップには Node.js が必要です
+
+`tools/validate-okf.mjs` は **Node.js（≥ 18）** で動作します。未インストールの場合は [Node.js 公式サイト](https://nodejs.org/) から入れてから実行してください（Step 1〜2 は Quarto のみで動作）。
+:::

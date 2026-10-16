@@ -56,6 +56,13 @@ website:
     right:
       - href: editor.qmd
         text: "Editor"
+  page-footer:
+    left: "OKF-seedling — OKF v0.2 準拠の知識バンドルを育てる Quarto テンプレート / MIT License / 2026 watanabe3tipapa"
+    right:
+      - text: "GitHub リポジトリ"
+        href: "https://github.com/watanabe3tipapa/okf-seedling"
+      - text: "LICENSE"
+        href: "https://github.com/watanabe3tipapa/okf-seedling/blob/main/LICENSE"
 
 format:
   html:
