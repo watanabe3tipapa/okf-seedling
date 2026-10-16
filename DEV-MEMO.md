@@ -312,3 +312,23 @@ okf-seedling/                        ← quarto use template 対象 (ルート=Q
   - `subgraph` を使うページは `index.qmd` のみ(サイト全体セレクタだが影響範囲はこの図だけ)
   - Viewer の UI クロームは英語のまま。知覚的な見た目レビューは未実施
 - 版数: 0.4.3 据え置き(利用者指示によりバンプなし)
+
+## M17: mermaid ノード枠の縦余白とラベル行高の固定(v0.4.3 据え置き)
+
+- 目的: 「2 種類のバンドル」の色は改善したが文字が枠内に収まらない、という指摘への対応(枠を縦長に)
+- 原因(切り分け)
+  - Chrome(1440px、フォント読み込み有無どちらも)では DOM 計測上は文字は枠内(上下パディング 15px・左右 30px)。再現せず
+  - 再現条件を特定: ラベルに `font-size` を 20px 以上で与えると枠外へあふれる(枠は mermaid が 16px で計測したサイズのまま)。ブラウザの最小フォントサイズ設定や大きめの既定フォントでは同様に起こる
+  - ラベルの `line-height` は 24px 固定ではなく `normal`(環境依存)、かつ `foreignObject` は `overflow:hidden` → 環境差で行高が大きい場合は**文字が欠ける/はみ出す**
+  - mermaid の計測フォントは `trebuchet ms, verdana, arial`(mermaid.min.js 既定)で、Quarto の描画フォント `var(--mermaid-font-family)` = Source Sans Pro と不一致(計測依存の溢れ要因)
+- 実装(`assets/grid.css` のみ。ラベル文字列は変更なし)
+  - `svg.mermaid-js:has(g.cluster) g.node rect` に `transform-box:fill-box; transform-origin:center; transform:scaleY(1.3); vector-effect:non-scaling-stroke` を適用し、枠を縦 1.3 倍(78 → 101、102 → 133)に拡大。subgraph のない図(パイプライン)は上下余白が 8px しかなく拡大すると viewBox から出るため `:has(g.cluster)` で限定
+  - ラベル行高を `1.375`(16px → 22px)に固定し、`overflow:visible` に変更(環境差で行高が大きくても欠けない)
+- 検証
+  - 文字は枠内(`inside: true`)、上下パディング 18〜24px(左右 20px)に。エッジ端点は成長後の枠の外(depth 0)で矢印の接続は正常
+  - 図 1(パイプライン)のノード高さは不変(78/54 のまま)。色(地 `#eef4fb` / タイトル `#14406b` / 本文 `#333`)も不変
+  - 既定行高を 1.9 にした模擬環境(非 `!important` 上書き)でも固定行高が勝ち、枠外あふれ 0 件
+- 注意
+  - `transform` で拡大するため rect の `height` 属性は元のまま(見た目のみ変化)。角丸は縦に 1.3 倍(rx5 → ry6.5)でごく僅かに楕円
+  - 画像の知覚レビューは当方では不可(画像入力非対応)。数値検証のみ
+- 版数: 0.4.3 据え置き

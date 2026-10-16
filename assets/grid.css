@@ -50,6 +50,28 @@ svg.mermaid-js .cluster-label .nodeLabel {
   fill: #14406b !important;
 }
 
+/* mermaid ラベルの行高を固定する。ブラウザ既定の行高はフォントにより mermaid の
+   計測値より大きくなることがあり、その場合ラベルが frame からはみ出す/欠ける。
+   併せて overflow を可視にして、万一はみ出しても文字が欠けないようにする。 */
+svg.mermaid-js .nodeLabel,
+svg.mermaid-js .label foreignObject,
+svg.mermaid-js foreignObject > div,
+svg.mermaid-js .cluster-label foreignObject,
+svg.mermaid-js .edgeLabel foreignObject {
+  line-height: 1.375 !important;
+  overflow: visible !important;
+}
+
+/* subgraph を含む図(= 2 種類のバンドル)はノード枠の上下に余白があるため、
+   枠を縦に 3 割ほど拡げて文字の上下にゆとりを作る。subgraph のない図は
+   余白が無く拡げると viewBox からはみ出すので :has() で限定する。 */
+svg.mermaid-js:has(g.cluster) g.node rect {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scaleY(1.3);
+  vector-effect: non-scaling-stroke;
+}
+
 /* モバイル表示の安全策: テーブル・コード・セル出力をはみ出させない */
 .table,
 .table-responsive,
