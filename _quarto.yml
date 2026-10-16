@@ -1,6 +1,8 @@
 project:
   type: website
   output-dir: _site
+  resources:
+    - assets/archify/tool-overview.html
   render:
     - "*.qmd"
     # notes/ は秘密領域のため公開物(_site)に絶対に含めない

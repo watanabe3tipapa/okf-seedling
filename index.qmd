@@ -56,6 +56,13 @@ flowchart LR
 - **リンターツール**として準拠チェック + 鮮度・欠落の品質警告
 - GitHub Pages / Cloudflare Pages に並行デプロイ
 
+## アーキテクチャ図（対話型）
+
+上記の流れを、構成要素・データ流れ・ガイドビュー付きの **対話型アーキテクチャ図** としてまとめました。
+コンポーネントの選択、ルート探索、テーマ切替、印刷・エクスポートに対応しています。
+
+[アーキテクチャ図を開く](assets/archify/tool-overview.html){.btn .btn-outline-primary role="button" target="_blank" rel="noopener"}
+
 ## OKF バンドルとは
 
 エージェントにも人間にも読める形で、ドキュメント群をひとまとめにした知識パッケージです（知識バンドル = OKF バンドル、以下「OKF バンドル」）。

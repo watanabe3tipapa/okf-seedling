@@ -1,0 +1,316 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "OKF-seedling テンプレートツールの全体像",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/watanabe3tipapa/okf-seedling",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "1d881a68507f9a173c35b35f928a15798101654e"
+    },
+    "views": [
+      {
+        "id": "human-path",
+        "label": "人間向けの道",
+        "focus": [
+          "authors",
+          "source",
+          "render",
+          "site",
+          "deploy",
+          "human"
+        ],
+        "note": "qmd を書いてレンダリングし、公開ページとして人間に届ける主経路。"
+      },
+      {
+        "id": "agent-path",
+        "label": "エージェント向けの道",
+        "focus": [
+          "source",
+          "render",
+          "bundle",
+          "linter",
+          "agent"
+        ],
+        "note": "同じソースから機械用バンドルを作り、リンターを通ってエージェントへ。"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "authors",
+      "type": "external",
+      "label": "作者",
+      "sublabel": "人間 / エージェント",
+      "pos": [
+        40,
+        270
+      ],
+      "size": [
+        130,
+        60
+      ]
+    },
+    {
+      "id": "editor",
+      "type": "frontend",
+      "label": "Online Editor",
+      "sublabel": "editor.qmd / Quarto Editor PE",
+      "pos": [
+        40,
+        130
+      ],
+      "size": [
+        160,
+        60
+      ],
+      "tag": "ブラウザ編集"
+    },
+    {
+      "id": "source",
+      "type": "frontend",
+      "label": ".qmd ソース",
+      "sublabel": "frontmatter + body",
+      "pos": [
+        230,
+        270
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "tag": "1 概念 1 ファイル",
+      "sources": [
+        {
+          "path": "index.qmd",
+          "label": "LP ソース"
+        },
+        {
+          "path": "concepts/api-overview.qmd",
+          "label": "概念ファイル"
+        }
+      ]
+    },
+    {
+      "id": "render",
+      "type": "backend",
+      "label": "quarto render",
+      "sublabel": "拡張 + lua filter",
+      "pos": [
+        460,
+        270
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "tag": "単一ソース"
+    },
+    {
+      "id": "site",
+      "type": "frontend",
+      "label": "_site/ HTML",
+      "sublabel": "LP / Concept / Tutorial",
+      "pos": [
+        680,
+        150
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "bundle",
+      "type": "database",
+      "label": "okf/ バンドル",
+      "sublabel": "index.md / log.md / *.md",
+      "pos": [
+        680,
+        390
+      ],
+      "size": [
+        210,
+        66
+      ],
+      "tag": "機械可読 Markdown"
+    },
+    {
+      "id": "linter",
+      "type": "security",
+      "label": "validate-okf リンター",
+      "sublabel": "準拠チェック + 品質警告",
+      "pos": [
+        680,
+        510
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "deploy",
+      "type": "cloud",
+      "label": "デプロイ",
+      "sublabel": "GitHub Pages / Cloudflare Pages",
+      "pos": [
+        910,
+        150
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "human",
+      "type": "external",
+      "label": "人間の読者",
+      "sublabel": "ブラウザで読む",
+      "pos": [
+        1130,
+        150
+      ],
+      "size": [
+        130,
+        60
+      ]
+    },
+    {
+      "id": "agent",
+      "type": "external",
+      "label": "エージェント / RAG",
+      "sublabel": "frontmatter を先に読む",
+      "pos": [
+        1020,
+        390
+      ],
+      "size": [
+        150,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "okf-seedling リポジトリ（ローカルビルド）",
+      "wraps": [
+        "source",
+        "render",
+        "site",
+        "bundle",
+        "linter"
+      ],
+      "pad": 18
+    }
+  ],
+  "connections": [
+    {
+      "id": "write-source",
+      "from": "authors",
+      "to": "source",
+      "label": "qmd を書く",
+      "variant": "emphasis"
+    },
+    {
+      "id": "browser-edit",
+      "from": "editor",
+      "to": "source",
+      "label": "ブラウザで編集してコミット",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "render-source",
+      "from": "source",
+      "to": "render",
+      "label": "quarto render"
+    },
+    {
+      "id": "emit-html",
+      "from": "render",
+      "to": "site",
+      "label": "人間用 HTML"
+    },
+    {
+      "id": "emit-bundle",
+      "from": "render",
+      "to": "bundle",
+      "label": "機械用 OKF バンドル"
+    },
+    {
+      "id": "publish",
+      "from": "site",
+      "to": "deploy",
+      "label": "公開"
+    },
+    {
+      "id": "serve-human",
+      "from": "deploy",
+      "to": "human",
+      "label": "閲覧"
+    },
+    {
+      "id": "read-bundle",
+      "from": "bundle",
+      "to": "agent",
+      "label": "frontmatter で採用判断"
+    },
+    {
+      "id": "validate-bundle",
+      "from": "bundle",
+      "to": "linter",
+      "label": "準拠 + 鮮度を検査",
+      "variant": "dashed",
+      "labelAt": [
+        785,
+        488
+      ],
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "serve-agent",
+      "from": "deploy",
+      "to": "agent",
+      "label": "公開 HTML の meta も取得",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "1 概念 1 ファイル",
+      "items": [
+        "concepts/*.qmd + frontmatter（type / title など）",
+        "6 型（API Overview / Endpoint / Schema / Playbook / Metric / Attested Computation）",
+        "type レジストリ（tools/okf-types.json）で拡張"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "単一ソース・二系統出力",
+      "items": [
+        "quarto render が HTML と okf/ バンドルを同時に生成",
+        "post-render: stamp-okf.mjs / gen-peek.mjs",
+        "validate-okf.mjs が準拠と鮮度を検査（警告）"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "OKF v0.2 の信頼信号",
+      "items": [
+        "sources / generated / verified / stale_after / status",
+        "計算の正規性は Attested Computation 型が担保",
+        "frontmatter だけで採用可否を判断"
+      ]
+    }
+  ]
+}

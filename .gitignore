@@ -12,3 +12,6 @@ pipeline/knowledge/
 /notes/
 
 **/*.quarto_ipynb
+
+# Archify visual-check evidence (regenerable sidecars)
+assets/archify/*.visual-check.*
