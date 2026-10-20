@@ -28,6 +28,14 @@ jobs:
         run: node tools/gen-schema.mjs --check
       - name: Validate OKF bundle
         run: node tools/validate-okf.mjs
+      - name: Check OKF bundle is in sync
+        run: |
+          if [ -n "$(git status --porcelain -- okf/concepts okf/index.md)" ]; then
+            echo "::error::okf/ bundle is out of sync with concepts/. Run 'quarto render' and commit the result."
+            git status --porcelain -- okf/concepts okf/index.md
+            git diff -- okf/concepts okf/index.md
+            exit 1
+          fi
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

@@ -110,13 +110,11 @@ async function writeLog(conceptCount) {
     return;
   }
   const update = [
-    "",
     `## ${today}`,
     `* **Update**: Rebuilt bundle with ${conceptCount} concept(s).`,
     "",
-    "",
   ].join("\n");
-  await writeFile(logPath, existing.replace(/\s+$/, "") + "\n" + update.trimStart());
+  await writeFile(logPath, existing.replace(/\s+$/, "") + "\n\n" + update);
 }
 
 async function main() {

@@ -101,7 +101,7 @@ stale_after: 2026-12-31
 
 **出力 `okf/concepts/api-endpoint.md`(機械用バンドル):**
 
-`quarto render` が `.qmd` のまま `okf/concepts/` へコピーし、frontmatter を保持します。エージェントはこの `.md` を読み、`type: APIEndpoint` / `method: GET` / `stale_after` などの辞書情報と見出し(Summary / Responses)を構造として解釈します。
+`quarto render` の post-render で `tools/stamp-okf.mjs` が動き、`.qmd` を `.md` へ変換して `okf/concepts/` に出力します(frontmatter はそのまま保持し、内部の `.qmd` リンクは `.md` へ書き換え)。エージェントはこの `.md` を読み、`type: APIEndpoint` / `method: GET` / `stale_after` などの辞書情報と見出し(Summary / Responses)を構造として解釈します。
 
 **人間用 HTML では:**
 

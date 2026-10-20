@@ -69,6 +69,7 @@ website:
 
 format:
   html:
+    lang: ja
     theme: cosmo
     css:
       - assets/grid.css
