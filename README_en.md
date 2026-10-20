@@ -57,6 +57,7 @@ This tool does not only "build" — it checks that things are **properly formed*
 - Optional Playwright-based learning pipeline that extracts HTML into structured JSON per concept
 - Online editing: author and commit `.qmd` concepts from the browser (Quarto Editor PE integration)
 - Two interactive diagrams included: a system-overview architecture map and a build-workflow diagram, both linked from the LP as self-contained HTML
+- Two "How AI Thinks" essays included: a model's own take on OKF, knowledge bundles, and verification
 
 ## Installation
 
@@ -139,8 +140,14 @@ Beginners: read **in this order** for the full picture.
 3. [2. Concept Types](https://watanabe3tipapa.github.io/okf-seedling/tutorial/02-concept-type.html) — how to write each type
 4. [3. Deploy](https://watanabe3tipapa.github.io/okf-seedling/tutorial/03-deploy.html) — publish it
 5. [4. Online Editor](https://okf-seedling.pages.dev/tutorial/04-online-editor.html) — grow bundles in the browser
-6. [OKF × RAG Synergy](https://watanabe3tipapa.github.io/okf-seedling/tutorial/okf-rag.html) — why it works for agents
-7. [Vision](https://watanabe3tipapa.github.io/okf-seedling/tutorial/why-seedling.html) — the thought behind "seedling"
+6. [5. Growing Apple Notes](https://watanabe3tipapa.github.io/okf-seedling/tutorial/05-apple-notes.html) — grow knowledge from your notes
+7. [OKF × RAG Synergy](https://watanabe3tipapa.github.io/okf-seedling/tutorial/okf-rag.html) — why it works for agents
+8. [Vision](https://watanabe3tipapa.github.io/okf-seedling/tutorial/why-seedling.html) — the thought behind "seedling"
+
+AI perspective column (essays):
+
+- [DeepSeek V4.1 Flash on OKF and Knowledge Bundles (#1)](https://watanabe3tipapa.github.io/okf-seedling/tutorial/ai-perspective.html) — what OKF and knowledge bundles make possible
+- [Does AI Trust "Verified"? (#2)](https://watanabe3tipapa.github.io/okf-seedling/tutorial/ai-perspective-2.html) — verification, unknowns, and provenance vs. REA's Evidence model
 
 Development notes: [DEV-MEMO](DEV-MEMO.md).
 
@@ -163,3 +170,8 @@ Live site: [https://watanabe3tipapa.github.io/okf-seedling/](https://watanabe3ti
 ## License
 
 MIT License — see the [LICENSE](LICENSE) file for details.
+
+## Maintenance status
+
+- The repository is not archived.
+- Last updated: 2026-10-20 (based on repository information)

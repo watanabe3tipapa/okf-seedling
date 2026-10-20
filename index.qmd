@@ -156,15 +156,25 @@ OKF と RAG は競合ではなく、OKF バンドルが RAG の精度を左右�
 
 ## DeepSeek V4.1 Flash はこう考える
 
-*「AI はこう考える」シリーズ #1。* 本サイトの制作を支援した DeepSeek V4.1 Flash に、OKF と知識バンドルの価値を率直に問いました。
+*「AI はこう考える」シリーズ。* 本サイトの制作を支援した DeepSeek V4.1 Flash が、OKF と知識バンドルの価値を率直に論じます。
 
 > 規格の役割は、育成の動機ではなく、廃棄と監査を可能にすること。
 
-- **道具として** — frontmatter と 1 概念 1 ファイルは、本文を読む前に採用/棄却を判断する材料になる
-- **モデル更新で削られないもの** — 来歴、非公開の文脈、失敗、否定的結果、調整用インターフェース
-- **育てる判断基準** — 再発見コスト・学習データ外・鮮度・監査・利用主体の 5 条件で選別する
+::: {.grid}
 
-[「DeepSeek V4.1 Flash はこう考える」を読む](tutorial/ai-perspective.qmd){.btn .btn-outline-primary role="button"}
+::: {.g-col-12 .g-col-md-6 .card}
+## #1 OKF と知識バンドルの価値
+frontmatter と 1 概念 1 ファイルは何を可能にするか。モデル更新で削られるもの・削られないもの、規格の役割を「廃棄と監査」から考える。
+[#1 を読む](tutorial/ai-perspective.qmd){.btn .btn-outline-primary .btn-sm role="button"}
+:::
+
+::: {.g-col-12 .g-col-md-6 .card}
+## #2 AI は「検証済み」を信じるか
+REA の Evidence 思想と知識バンドルを対比し、`verified` の限界、未知の残し方、生の証拠と熟成した知識の分担を考える。
+[#2 を読む](tutorial/ai-perspective-2.qmd){.btn .btn-outline-primary .btn-sm role="button"}
+:::
+
+:::
 
 ## 知識の頭出し（Peek）
 

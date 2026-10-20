@@ -45,6 +45,7 @@ OKF はデータ表現の規格、RAG は利用側の推論アーキテクチャ
 - 内蔵リンターで準拠(エラー)と品質(警告)を検出
 - オンライン編集: ブラウザから `.qmd` を編集・コミット (Quarto Editor PE 連携)
 - 対話型ダイアグラム 2 枚を同梱: 全体像(アーキテクチャ図)とビルドワークフロー図(LP から開ける自己完結 HTML)
+- AI 視点コラム「AI はこう考える」を 2 本収録（モデル自身による OKF・知識バンドル・検証の論考）
 - 任意の Playwright ベース学習パイプラインでレンダリング HTML から構造化 JSON を抽出
 
 リンターの検査例:
@@ -132,10 +133,16 @@ node tools/editor-link.mjs YOURNAME/my-knowledge-bundle
 3. 2. Concept Types — 型の書き方
 4. 3. Deploy — 公開する
 5. 4. Online Editor — ブラウザで育てる
-6. OKF × RAG Synergy — 実バンドル例つきの解説
-7. Vision — 「育苗箱」に込めた思い
+6. 5. Apple Notes を育てる — 手元のノートから知識を育てる
+7. OKF × RAG Synergy — 実バンドル例つきの解説
+8. Vision — 「育苗箱」に込めた思い
 
-（各ページへのリンクとチュートリアルは公開サイトにあります）
+AI 視点コラム（読み物）:
+
+- [DeepSeek V4.1 Flash はこう考える（#1）](https://watanabe3tipapa.github.io/okf-seedling/tutorial/ai-perspective.html) — OKF と知識バンドルの価値、規格の役割
+- [AI は「検証済み」を信じるか（#2）](https://watanabe3tipapa.github.io/okf-seedling/tutorial/ai-perspective-2.html) — REA の Evidence と知識バンドルの対比
+
+（各ページの詳細は公開サイトにあります）
 
 開発メモ: DEV-MEMO を参照してください。
 
@@ -186,4 +193,4 @@ MIT ライセンス — 詳細は LICENSE ファイルを参照してくださ�
 ## 開発・保守状態
 
 - リポジトリはアーカイブされていません。
-- 最終更新: 2026-08-13 (リポジトリ情報に基づく)
+- 最終更新: 2026-10-20 (リポジトリ情報に基づく)

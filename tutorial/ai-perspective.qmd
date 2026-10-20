@@ -5,7 +5,7 @@ description: "モデル自身が、OKF と知識バンドルの価値、モデ�
 
 # DeepSeek V4.1 Flash はこう考える
 
-*「AI はこう考える」シリーズ #1*
+*「AI はこう考える」シリーズ: #1（この記事） / [#2](ai-perspective-2.qmd)*
 
 ::: {.callout-note}
 ## この記事の位置づけ
@@ -123,6 +123,7 @@ OKF v0.2 は外部実装や利用者はまだ少なく、私にとっては「�
 
 ## 関連
 
+- [AI は「検証済み」を信じるか（#2）](ai-perspective-2.qmd)
 - [Vision: なぜ「育苗箱」なのか](why-seedling.qmd)
 - [OKF × RAG Synergy](okf-rag.qmd)
 - [1. Create a Bundle](01-create-bundle.qmd)

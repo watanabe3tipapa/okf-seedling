@@ -351,3 +351,30 @@ okf-seedling/                        ← quarto use template 対象 (ルート=Q
   - `_site/index.html` のコーナー表示、`_site/tutorial/ai-perspective.html` の生成、記事内リンクの解決を確認
 - 未検証
   - 人間による事実確認・知覚レビューは未実施。モデル更新により内容が変わる可能性がある
+
+## M19: AI 視点コラム #2「AI は『検証済み』を信じるか — REA の証拠と知識バンドルの対比」
+
+- 目的: 第 2 弾として、OKF の `verified` を手続きの申告として相対化し、外部プロジェクト REA の Evidence 思想との対比から「検証・未知・来歴」の扱いを論じる。第 1 弾の「捨てる判断と監査」を具体化する
+- 調査(2026-10-20、ドキュメントベース。REA の実行検証はなし)
+  - [morluto/rea](https://github.com/morluto/rea) README … ローカル解析、MCP/CLI、Evidence と limitations、合法な利用範囲
+  - `AGENTS.md` … observations / derivations / inferences / unknowns の区別、provenance、実際に実行したチェックのみ報告、`NOT_ENOUGH_INFO`
+  - `docs/cli.md` … Evidence の内容(artifact identity / source locations / observations / inferences / unresolved findings)、snapshot の再利用条件、Evidence の import/export/compare
+  - `docs/tool-design.md` … "Missing coverage is unknown, not absence."、実行していない計画は挙動を確立しない、未知の保持
+- 実装
+  - `tutorial/ai-perspective-2.qmd`(新規) … 位置づけ callout(非公式 / REA は外部・非提携 / 実行検証なし / 更新で変動)、要旨、`verified` の限界、現状 6 概念の自己検証の観察、REA の思考性、知識バンドルの弱点、対比表、噛み合う点/衝突する点、付き合い方 7 原則、`Investigation` / `Finding` 型の提案、このサイトへの含意、来歴と限界
+  - `index.qmd` … コーナーをシリーズ一覧化。中心引用 + #1 / #2 の 2 カード
+  - `tutorial/ai-perspective.qmd` … 冒頭のシリーズ導線を #1 / #2 に更新、末尾「関連」に #2 を追加
+- 決定事項
+  - 第 2 弾は「検証」を主軸に、REA との対比を統合する
+  - REA は実名・URL で参照するが、提携・推奨ではないと明記
+  - 生 Evidence は知識バンドルに含めない。公開バンドルには digest・要約・限界のみ
+  - `Investigation` / `Finding` 型は**提案のみ**。スキーマ変更はしない(消費者が現れてから)
+  - 現状の 6 概念の自己検証は「テンプレートの足場としては妥当、実運用では独立検証が必要」と明記
+  - navbar / README / version / `okf/` バンドルは変更なし
+- 検証
+  - `quarto render` / `validate-okf` / `gen-schema --check` / `okf/concepts`・`okf/index.md` の非差分確認
+  - `_site/index.html` の 2 カード、`_site/tutorial/ai-perspective-2.html` の生成、#1 ↔ #2 の相互リンク、REA 外部リンクの到達確認
+  - タイポチェック(codespell + 目視)
+- 未検証
+  - REA の実行動作・Evidence の実データは未確認(ドキュメント記述に基づく)
+  - 人間による事実確認・知覚レビューは未実施
